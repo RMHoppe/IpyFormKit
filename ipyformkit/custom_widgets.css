@@ -1,0 +1,31 @@
+.file-autocomplete {
+    --autocomplete-focus: none;
+}
+             
+.file-autocomplete:hover {
+    --autocomplete-focus: block;
+}
+             
+.suggestion-box{
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0px;
+    margin: 0px;
+    display: var(--autocomplete-focus);
+}
+             
+.autocomplete-suggestions {
+    width: 100%;
+    padding-left: 10px;
+    margin: 0px;
+    display: flex;
+    justify-content: flex-start;
+    border: none;
+    background-color: var(--jp-layout-color0);
+}
+                          
+.autocomplete-suggestions:hover {
+    background-color: var(--jp-layout-color1);
+}  
