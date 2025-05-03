@@ -1,0 +1,167 @@
+import ipywidgets as widgets
+from IPython.display import display, HTML
+import os, copy
+
+display(HTML("""
+<style>
+             
+.file-autocomplete {
+    --autocomplete-focus: none;
+}
+             
+.file-autocomplete:hover {
+    --autocomplete-focus: block;
+}
+             
+.suggestion-box{
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0px;
+    margin: 0px;
+    display: var(--autocomplete-focus);
+}
+             
+.autocomplete-suggestions {
+    width: 100%;
+    padding-left: 10px;
+    margin: 0px;
+    display: flex;
+    justify-content: flex-start;
+    border: none;
+    background-color: var(--jp-layout-color0);
+}
+                          
+.autocomplete-suggestions:hover {
+    background-color: var(--jp-layout-color1);
+}             
+
+</style>
+"""))
+
+class CollapsibleVBox(widgets.VBox):
+    def __init__(self, title="Section", children=None, collapsed=False):
+        self.collapsed = collapsed
+        
+        # Collapse/expand button (not toggle)
+        self.toggle_button = widgets.Button(
+            tooltip="Expand/Collapse",
+            icon='chevron-right' if collapsed else 'chevron-down',
+            layout=widgets.Layout(width='40px', height='32px'),
+            button_style='',  # No coloring
+        )
+        
+        self.label = widgets.HTML(
+            value=f"{title}",
+            layout=widgets.Layout(align_self='center', margin='0 8px')
+        )
+        
+        self.header = widgets.HBox(
+            [self.toggle_button, self.label],
+            layout=widgets.Layout(align_items='center', margin='0 0 5px 0')
+        )
+        
+        self.content_box = widgets.VBox(children or [])
+        self.content_box.layout.display = 'none' if collapsed else 'block'
+        
+        super().__init__([self.header, self.content_box])
+        
+        self.toggle_button.on_click(self._on_toggle_click)
+
+    def _on_toggle_click(self, b):
+        self.collapsed = not self.collapsed
+        self.content_box.layout.display = 'none' if self.collapsed else 'block'
+        self.toggle_button.icon = 'chevron-right' if self.collapsed else 'chevron-down'
+
+
+class FileAutocomplete(widgets.VBox):
+    def __init__(self, root_path='./', placeholder='Start typing a file name...', max_results=10, **kwargs):
+        super().__init__()
+        
+        self.root_path = root_path
+        self.max_results = max_results
+
+        # Main input field
+        self.text = widgets.Text(placeholder=placeholder, **kwargs)
+        self.layout.min_width = self.text.layout.min_width
+        self.layout.width = '100%'
+        self.layout.overflow = 'visible'
+        self.text.layout.margin = '0px'
+        self.text.layout.width = '100%'
+        
+        # Container for suggestions (styled like a dropdown)
+        self.suggestions_box = widgets.VBox()
+        self.suggestions_box.add_class('suggestion-box')
+        self.children = [self.text, self.suggestions_box]
+        self.text.observe(self._on_text_change, names='value')
+        self.add_class('file-autocomplete')
+    
+    def _on_text_change(self, change):
+        typed = change['new']
+        matches = self._get_matching_files(typed)
+        self._update_suggestions(matches)
+    
+    def _get_matching_files(self, path):
+        try:
+            if '/' in path:
+                folder = path[:path.rindex('/')+1]
+                prefix = path[path.rindex('/')+1:]
+            else:
+                folder = ''
+                prefix = path
+
+            abs_folder_path = os.path.join(self.root_path, folder)
+            files = os.listdir(abs_folder_path)
+            matches = [folder + f for f in files if prefix in f]
+            return sorted(matches)[:self.max_results]
+        except Exception:
+            return []
+
+    def _update_suggestions(self, matches):
+        suggestion_widgets = []
+        if not matches:
+            label = widgets.Label(value='No matches found')
+            suggestion_widgets.append(label)
+        else:
+            for match in matches:
+                abs_path = os.path.join(self.root_path, match)
+                is_dir = os.path.isdir(abs_path)
+                icon_html = '<i class="fa fa-folder"></i>' if is_dir else '<i class="fa fa-file"></i>'
+
+                icon_widget = widgets.HTML(
+                    value=icon_html,
+                    layout=widgets.Layout(width='10px', margin='0')
+                )
+
+                if os.sep in match:
+                    m = match[match.rindex(os.sep)+1:]
+                else:
+                    m = match
+
+                text_button = widgets.Button(
+                    description=m,
+                    layout=widgets.Layout(width='100%', justify_content='flex-start'),
+                    button_style=''
+                )
+                text_button.file = match
+                text_button.on_click(self._on_suggestion_clicked)
+
+                suggestion = widgets.HBox(
+                    [icon_widget, text_button],
+                    layout=widgets.Layout(align_items='center', padding='0px', margin='0px')
+                )
+
+                text_button.add_class('autocomplete-suggestions')
+                suggestion_widgets.append(suggestion)
+
+        self.suggestions_box.children = suggestion_widgets
+
+    def _on_suggestion_clicked(self, button):
+        self.text.value = button.file
+        self._update_suggestions([button.file])
+
+    def __getattribute__(self, name):
+        if name == 'value':
+            return self.text.value
+        return super().__getattribute__(name)
