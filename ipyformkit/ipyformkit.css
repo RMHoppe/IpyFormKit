@@ -1,0 +1,63 @@
+:root {
+    --ifk-form-border-color: var(--vscode-editorWidget-border, var(--jp-cell-editor-border-color));
+    --jp-widgets-input-background-color: var(--vscode-editorWidget-background, var(--jp-layout-color1));
+
+    --jp-widgets-color: var(--vscode-foreground, var(--jp-ui-font-color0));
+    --jp-widgets-input-color: var(--vscode-foreground, var(--jp-ui-font-color0));
+    --ifk-widget-label-color: var(--vscode-descriptionForeground, var(--jp-ui-font-color1));
+    --ifk-form-title-color: var(--vscode-disabledForeground, var(--jp-ui-font-color3));
+  }
+               
+.cell-output-ipywidget-background {
+  background-color: var(--vscode-editor-background) !important;
+  padding: var(--notebook-output-node-padding) 0 0 0 !important;
+  margin: 0;
+}
+
+.ifk-form {
+    padding: 10px;
+    border: 1px solid var(--ifk-form-border-color);
+}
+
+.ifk-form-title {
+    font-weight: bold;
+    font-style: italic;
+    font-size: 1.5em;
+    margin: 0px;
+    padding: 0px;
+    justify-content: end;
+    color: var(--ifk-form-title-color);
+}
+
+.ifk-widget-box {
+    padding: var(--jp-widgets-margin);
+    width:100%;
+}
+
+.ifk-form-toggle-button {
+    background-color: transparent;
+    color: var(--ifk-widget-label-color);
+}
+
+.ifk-widget-label {
+    margin: 0;
+    color: var(--ifk-widget-label-color)
+}
+
+.ifk-widget-input {
+    width: auto;
+    margin: 0;
+}
+
+.ifk-widget-Text {
+    width: 100%;
+}
+
+.ifk-widget-IntText,
+.ifk-widget-FloatText {
+    max-width: 180px;
+}
+
+.ifk-widget-Dropdown {
+    width: auto;
+}

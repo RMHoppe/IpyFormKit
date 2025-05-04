@@ -2,49 +2,6 @@ import ipywidgets as widgets
 from IPython.display import display, HTML
 import os, copy
 
-stylesheet = './custom_widgets.css'
-if os.path.exists(stylesheet):
-    with open(stylesheet, 'r') as f:
-        css = f.read()
-    display(HTML(f'<style>{css}</style>'))
-else:
-    print(f"Warning: {stylesheet} not found. Custom styles will not be applied.")
-
-class CollapsibleVBox(widgets.VBox):
-    def __init__(self, title="Section", children=None, collapsed=False):
-        self.collapsed = collapsed
-        
-        # Collapse/expand button (not toggle)
-        self.toggle_button = widgets.Button(
-            tooltip="Expand/Collapse",
-            icon='chevron-right' if collapsed else 'chevron-down',
-            layout=widgets.Layout(width='40px', height='32px'),
-            button_style='',  # No coloring
-        )
-        
-        self.label = widgets.HTML(
-            value=f"{title}",
-            layout=widgets.Layout(align_self='center', margin='0 8px')
-        )
-        
-        self.header = widgets.HBox(
-            [self.toggle_button, self.label],
-            layout=widgets.Layout(align_items='center', margin='0 0 5px 0')
-        )
-        
-        self.content_box = widgets.VBox(children or [])
-        self.content_box.layout.display = 'none' if collapsed else 'block'
-        
-        super().__init__([self.header, self.content_box])
-        
-        self.toggle_button.on_click(self._on_toggle_click)
-
-    def _on_toggle_click(self, b):
-        self.collapsed = not self.collapsed
-        self.content_box.layout.display = 'none' if self.collapsed else 'block'
-        self.toggle_button.icon = 'chevron-right' if self.collapsed else 'chevron-down'
-
-
 class FileAutocomplete(widgets.VBox):
     def __init__(self, root_path='./', placeholder='Start typing a file name...', max_results=10, **kwargs):
         super().__init__()
@@ -135,3 +92,38 @@ class FileAutocomplete(widgets.VBox):
         if name == 'value':
             return self.text.value
         return super().__getattribute__(name)
+    
+    
+class CollapsibleVBox(widgets.VBox):
+    def __init__(self, children=None, title='Section', collapsed=False):
+        self.collapsed = collapsed
+        
+        # Collapse/expand button (not toggle)
+        self.toggle_button = widgets.Button(
+            tooltip="Expand/Collapse",
+            icon='chevron-right' if collapsed else 'chevron-down',
+            layout=widgets.Layout(width='40px', height='32px'),
+        )
+        
+        self.label = widgets.HTML(
+            value=f"{title}",
+            layout=widgets.Layout(align_self='center', margin='0 8px')
+        )
+        
+        self.header = widgets.HBox(
+            [self.toggle_button, self.label],
+            layout=widgets.Layout(align_items='center', margin='5px 0 0 0')
+        )
+        
+        self.content_box = widgets.VBox(children or [])
+        self.content_box.layout.display = 'none' if collapsed else 'block'
+        self.content_box.layout.padding = '0 0 0 10px'
+        
+        super().__init__([self.header, self.content_box])
+        
+        self.toggle_button.on_click(self._on_toggle_click)
+
+    def _on_toggle_click(self, b):
+        self.collapsed = not self.collapsed
+        self.content_box.layout.display = 'none' if self.collapsed else 'block'
+        self.toggle_button.icon = 'chevron-right' if self.collapsed else 'chevron-down'
