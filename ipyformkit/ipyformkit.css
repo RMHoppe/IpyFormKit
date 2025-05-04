@@ -1,15 +1,21 @@
 :root {
-    --ifk-form-border-color: var(--vscode-editorWidget-border, var(--jp-cell-editor-border-color));
-    --jp-widgets-input-background-color: var(--vscode-editorWidget-background, var(--jp-layout-color1));
+    --ifk-layout-color0: var(--vscode-editor-background, var(--jp-layout-color0));
+    --ifk-layout-color1: var(--vscode-editorWidget-background, var(--jp-layout-color1));
+    --ifk-layout-color2: var(--vscode-descriptionForeground, var(--jp-layout-color2));
+    --ifk-layout-color3: var(--vscode-editorWidget-border, var(--jp-cell-editor-border-color));
 
-    --jp-widgets-color: var(--vscode-foreground, var(--jp-ui-font-color0));
-    --jp-widgets-input-color: var(--vscode-foreground, var(--jp-ui-font-color0));
+    --jp-widgets-color: inherit;
+    --jp-widgets-input-color: inherit;
+    --jp-widgets-input-background-color: var(--ifk-layout-color1);
+    
+    --ifk-form-border-color: var(--vscode-editorWidget-border, var(--jp-cell-editor-border-color));
+    --ifk-widget-input-color: var(--vscode-foreground, var(--jp-ui-font-color0));
     --ifk-widget-label-color: var(--vscode-descriptionForeground, var(--jp-ui-font-color1));
     --ifk-form-title-color: var(--vscode-disabledForeground, var(--jp-ui-font-color3));
   }
                
 .cell-output-ipywidget-background {
-  background-color: var(--vscode-editor-background) !important;
+  background-color: var(--ifk-layout-color0) !important;
   padding: var(--notebook-output-node-padding) 0 0 0 !important;
   margin: 0;
 }
@@ -47,9 +53,28 @@
 .ifk-widget-input {
     width: auto;
     margin: 0;
+    color: var(--ifk-widget-input-color);
 }
 
-.ifk-widget-Text {
+.ifk-widget-Button {
+    background-color: var(--ifk-layout-color3);
+}
+
+.ifk-widget-Button:hover {
+    background-color: var(--ifk-layout-color2);
+}
+
+.ifk-widget-Button:active {
+    background-color: var(--ifk-layout-color2);
+}
+
+.ifk-widget-input-error {
+    color: rgba(255, 0, 0, 0.75);
+}
+
+.ifk-widget-Text,
+.ifk-widget-Textarea,
+.ifk-widget-Password {
     width: 100%;
 }
 
