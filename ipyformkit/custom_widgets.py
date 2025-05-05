@@ -101,7 +101,7 @@ class CollapsibleVBox(widgets.VBox):
         # Collapse/expand button (not toggle)
         self.toggle_button = widgets.Button(
             tooltip="Expand/Collapse",
-            icon='chevron-right' if collapsed else 'chevron-down',
+            description='\u25B6' if collapsed else '\u25BC',
             layout=widgets.Layout(width='40px', height='32px'),
         )
         
@@ -126,4 +126,4 @@ class CollapsibleVBox(widgets.VBox):
     def _on_toggle_click(self, b):
         self.collapsed = not self.collapsed
         self.content_box.layout.display = 'none' if self.collapsed else 'block'
-        self.toggle_button.icon = 'chevron-right' if self.collapsed else 'chevron-down'
+        self.toggle_button.description = '\u25B6' if self.collapsed else '\u25BC'
