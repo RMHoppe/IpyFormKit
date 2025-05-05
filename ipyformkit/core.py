@@ -187,7 +187,25 @@ class Form(object):
 
     #=====================================================================
     def display(self):
-        display(self.vbox)
+        # Get the directory of this file (core.py)
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        stylesheets = [
+            'custom_widgets.css',
+            'ipyformkit.css'
+        ]
+
+        items = [self.vbox]
+
+        for stylesheet in stylesheets:
+            stylesheet = module_dir + os.sep + stylesheet
+            if os.path.exists(stylesheet):
+                with open(stylesheet, 'r') as f:
+                    css = f.read()
+                    items.append(HTML(f'<style>{css}</style>'))
+            else:
+                print(f"Warning: {stylesheet} not found. Custom styles will not be applied.")
+
+        display(*items)
 
     #=====================================================================
     def get_values(self):
