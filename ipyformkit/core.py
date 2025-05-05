@@ -19,7 +19,7 @@ def create_widget(key, value):
     elif isinstance(value, bool):
         wid = widgets.Checkbox(value=value, description=key, indent=False)
         box.add_class('ifk-widget-Checkbox')
-        label.value = ''
+        box.children = box.children[1:]
     elif isinstance(value, int):
         wid = widgets.IntText(value=value)
         box.add_class('ifk-widget-IntText')
@@ -158,6 +158,10 @@ class Form(object):
             value_dict = self.get_values()
             for wid, condition in self.disable_conditions.items():
                 wid.wid.disabled = condition(value_dict)
+                if condition(value_dict):
+                    wid.wid.add_class('ifk-widget-input-disabled')
+                else:
+                    wid.wid.remove_class('ifk-widget-input-disabled')
 
     #=====================================================================
     @throttle(0.2)
