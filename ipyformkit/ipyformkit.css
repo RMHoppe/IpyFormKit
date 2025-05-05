@@ -83,6 +83,22 @@
     background-color: var(--ifk-layout-color0);
 }
 
+.file-autocomplete {
+    height: auto;
+}
+
+.suggestion-box {
+    border: 1px solid var(--ifk-layout-color0);
+}
+
+.autocomplete-suggestions-hbox {
+    background-color: var(--ifk-layout-color0);
+}
+                          
+.autocomplete-suggestions-hbox:hover {
+    background-color: var(--ifk-layout-color1);
+}
+
 .ifk-widget-input-disabled {
     opacity: var(--jp-widgets-disabled-opacity);
 }
@@ -102,6 +118,7 @@
     color: inherit !important;
     background-color: transparent !important;
     border: none !important;
+    line-height: auto;
 }
 
 .ifk-widget-input .widget-label-basic {
@@ -140,7 +157,8 @@
 
 .ifk-widget-Text,
 .ifk-widget-Textarea,
-.ifk-widget-Password {
+.ifk-widget-Password,
+.ifk-widget-FileAutocomplete{
     width: 100%;
 }
 

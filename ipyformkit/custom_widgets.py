@@ -31,9 +31,9 @@ class FileAutocomplete(widgets.VBox):
     
     def _get_matching_files(self, path):
         try:
-            if '/' in path:
-                folder = path[:path.rindex('/')+1]
-                prefix = path[path.rindex('/')+1:]
+            if os.sep in path:
+                folder = path[:path.rindex(os.sep)+1]
+                prefix = path[path.rindex(os.sep)+1:]
             else:
                 folder = ''
                 prefix = path
@@ -51,26 +51,28 @@ class FileAutocomplete(widgets.VBox):
             label = widgets.Label(value='No matches found')
             suggestion_widgets.append(label)
         else:
+            if len(matches)==1:
+                print(matches, self.text.value)
+                if matches[0] == self.text.value:
+                    self.suggestions_box.children = []
+                    return
+                
             for match in matches:
                 abs_path = os.path.join(self.root_path, match)
                 is_dir = os.path.isdir(abs_path)
-                icon_html = '<i class="fa fa-folder"></i>' if is_dir else '<i class="fa fa-file"></i>'
+                icon_html = '\U0001F4C1' if is_dir else '\U0001F4C4'
 
-                icon_widget = widgets.HTML(
-                    value=icon_html,
-                    layout=widgets.Layout(width='10px', margin='0')
+                icon_widget = widgets.Label(
+                    value=icon_html
                 )
+                icon_widget.add_class('file-autocomplete-icon')
 
                 if os.sep in match:
                     m = match[match.rindex(os.sep)+1:]
                 else:
                     m = match
-
-                text_button = widgets.Button(
-                    description=m,
-                    layout=widgets.Layout(width='100%', justify_content='flex-start'),
-                    button_style=''
-                )
+                    
+                text_button = widgets.Button(description=m)
                 text_button.file = match
                 text_button.on_click(self._on_suggestion_clicked)
 
@@ -78,7 +80,8 @@ class FileAutocomplete(widgets.VBox):
                     [icon_widget, text_button],
                     layout=widgets.Layout(align_items='center', padding='0px', margin='0px')
                 )
-
+                
+                suggestion.add_class('autocomplete-suggestions-hbox')
                 text_button.add_class('autocomplete-suggestions')
                 suggestion_widgets.append(suggestion)
 
