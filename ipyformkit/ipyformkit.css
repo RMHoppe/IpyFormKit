@@ -3,10 +3,6 @@
     --ifk-layout-color1: var(--vscode-editorWidget-background, var(--jp-layout-color1));
     --ifk-layout-color2: var(--vscode-descriptionForeground, var(--jp-layout-color2));
     --ifk-layout-color3: var(--vscode-editorWidget-border, var(--jp-cell-editor-border-color));
-
-    --jp-widgets-color: inherit;
-    --jp-widgets-input-color: inherit;
-    --jp-widgets-input-background-color: var(--ifk-layout-color1);
     
     --ifk-form-border-color: var(--vscode-editorWidget-border, var(--jp-cell-editor-border-color));
     --ifk-widget-input-color: var(--vscode-foreground, var(--jp-ui-font-color0));
@@ -32,6 +28,7 @@
     margin: 0px;
     padding: 0px;
     justify-content: end;
+    text-align: right;;
     color: var(--ifk-form-title-color);
 }
 
@@ -54,6 +51,22 @@
     width: auto;
     margin: 0;
     color: var(--ifk-widget-input-color);
+    border: 1px solid var(--ifk-layout-color2);
+    background-color: var(--ifk-layout-color1);
+}
+
+.ifk-widget-input-error {
+    background-color: rgba(255, 0, 0, 0.25);
+}
+
+.ifk-widget-input-missing {
+    border: 1px solid rgba(255, 0, 0, 0.75);
+}
+
+.ifk-widget-input input {
+    color: inherit !important;
+    background-color: transparent !important;
+    border: none !important;
 }
 
 .ifk-widget-Button {
@@ -66,10 +79,6 @@
 
 .ifk-widget-Button:active {
     background-color: var(--ifk-layout-color2);
-}
-
-.ifk-widget-input-error {
-    color: rgba(255, 0, 0, 0.75);
 }
 
 .ifk-widget-Text,

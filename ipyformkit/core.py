@@ -193,18 +193,33 @@ class Form(object):
     #=====================================================================
     def check_and_return_values(self):
         out = {}
+        abort = False
+        value_dict = self.get_values()
         for key, wid in self.widgets_dict.items():
             if hasattr(wid.wid, 'value'):
                 value = wid.wid.value
                 disabled = wid.wid.disabled
                 hidden = wid.layout.display == 'none'
                 mandatory = key in self.mandatory if self.mandatory else False
+                check_func = self.check_conditions.get(wid, lambda d:True)
+                valid = check_func(value_dict)
                 
                 if value == '' and mandatory:
-                    raise ValueError(f"Mandatory field '{key}' is empty.")
+                    print(f"Mandatory field '{key}' is empty.")
+                    wid.wid.add_class('ifk-widget-input-missing')
+                    abort = True
+                else:
+                    wid.wid.remove_class('ifk-widget-input-missing')
+                    
+                if not valid:
+                    print(f"Invalid input in field '{key}'.")
+                    abort = True
                 
-                elif not (disabled or hidden):
+                if not (disabled or hidden):
                     out[key] = value
-
-        return out
+                    
+        if abort:
+            return None
+        else:
+            return out
     
