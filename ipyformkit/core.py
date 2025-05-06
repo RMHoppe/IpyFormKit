@@ -4,6 +4,28 @@ import os, sys, copy
 from .custom_widgets import *
 from .auxfuncs import *
 
+
+#=====================================================================
+def load_stylesheets():
+    # Get the directory of this file (core.py)
+    module_dir = os.path.dirname(os.path.abspath(__file__))
+    stylesheets = [
+        'custom_widgets.css',
+        'ipyformkit.css'
+    ]
+
+    sheets = []
+
+    for stylesheet in stylesheets:
+        stylesheet = module_dir + os.sep + stylesheet
+        if os.path.exists(stylesheet):
+            with open(stylesheet, 'r') as f:
+                css = f.read()
+                sheets.append(HTML(f'<style>{css}</style>'))
+        else:
+            print(f"Warning: {stylesheet} not found. Custom styles will not be applied.")
+    return sheets
+
 #=====================================================================
 def create_widget(key, value):
     label = widgets.Label(value=key)
@@ -187,24 +209,7 @@ class Form(object):
 
     #=====================================================================
     def display(self):
-        # Get the directory of this file (core.py)
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        stylesheets = [
-            'custom_widgets.css',
-            'ipyformkit.css'
-        ]
-
-        items = [self.vbox]
-
-        for stylesheet in stylesheets:
-            stylesheet = module_dir + os.sep + stylesheet
-            if os.path.exists(stylesheet):
-                with open(stylesheet, 'r') as f:
-                    css = f.read()
-                    items.append(HTML(f'<style>{css}</style>'))
-            else:
-                print(f"Warning: {stylesheet} not found. Custom styles will not be applied.")
-
+        items = [self.vbox, *load_stylesheets()]
         display(*items)
 
     #=====================================================================
@@ -245,3 +250,15 @@ class Form(object):
         else:
             return out
     
+
+#=====================================================================
+class Masonry(object):
+    def __init__(self, forms):
+        self.forms = forms
+        self.box = widgets.Box([form.vbox for form in forms])
+        self.box.add_class('ifk-masonry')
+        
+    #=====================================================================
+    def display(self):
+        items = [self.box, *load_stylesheets()]
+        display(*items)
