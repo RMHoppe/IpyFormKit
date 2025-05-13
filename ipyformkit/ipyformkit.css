@@ -50,6 +50,7 @@
 .ifk-form {
     width: 100%;
     padding: 10px;
+    margin: 0 0 10px 0;
     border: 1px solid var(--ifk-form-border-color);
     background-color: var(--ifk-layout-color1);
     break-inside: avoid; /* helps prevent form from splitting between columns */
@@ -72,6 +73,11 @@
     overflow-y: hidden;
 }
 
+.ifk-widget-box .widget-label,
+.ifk-widget-box .widget-button {
+    color: var(--ifk-widget-label-color);
+}
+
 .ifk-form-toggle-button {
     background-color: transparent;
     color: var(--ifk-widget-label-color);
@@ -79,7 +85,7 @@
 
 .ifk-widget-label {
     margin: 0;
-    color: var(--ifk-widget-label-color)
+    color: var(--ifk-widget-label-color);
 }
 
 .ifk-widget-input {
@@ -97,6 +103,7 @@
 
 .suggestion-box {
     border: 1px solid var(--ifk-layout-color0);
+    color: var(--ifk-widget-label-color);
 }
 
 .autocomplete-suggestions-hbox {

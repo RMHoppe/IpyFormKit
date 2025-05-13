@@ -53,6 +53,7 @@ def create_widget(key, value):
         if os.sep in value:
             wid = FileAutocomplete(placeholder=value)
             box.add_class('ifk-widget-FileAutocomplete')
+            wid.text.add_class('ifk-widget-input')
         elif 'password' in key.lower():
             wid = widgets.Password(placeholder=value)
             box.add_class('ifk-widget-Password')
@@ -152,9 +153,9 @@ class Form(object):
         self.check_conditions = self.add_observer(check, self.update_check)
 
         # Set initial state for disable and hide conditions
+        self.update_check()
         self.update_disable()
         self.update_hide()
-        self.update_check()
 
     #=====================================================================
     def add_observer(self, conditions, func):
@@ -174,7 +175,7 @@ class Form(object):
         return conditions_out
         
     #=====================================================================
-    @throttle(0.2)
+    #@throttle(0.2)
     def update_disable(self, change=None):
         if hasattr(self, 'disable_conditions'):
             value_dict = self.get_values()
@@ -186,7 +187,7 @@ class Form(object):
                     wid.wid.remove_class('ifk-widget-input-disabled')
 
     #=====================================================================
-    @throttle(0.2)
+    #@throttle(0.2)
     def update_hide(self, change=None):
         if hasattr(self, 'hide_conditions'):
             value_dict = self.get_values()
@@ -197,7 +198,7 @@ class Form(object):
                     wid.layout.display = 'block'
         
     #=====================================================================
-    @throttle(0.2)
+    #@throttle(0.2)
     def update_check(self, change=None):
         if hasattr(self, 'check_conditions'):
             value_dict = self.get_values()

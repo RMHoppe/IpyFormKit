@@ -45,57 +45,89 @@ class FileAutocomplete(widgets.VBox):
         except Exception:
             return []
 
-    def _update_suggestions(self, matches):
+    def _update_suggestions(self, matches, clicked=False):
         suggestion_widgets = []
         if not matches:
             label = widgets.Label(value='No matches found')
             suggestion_widgets.append(label)
         else:
-            if len(matches)==1:
-                print(matches, self.text.value)
+            if clicked and len(matches)==1:
                 if matches[0] == self.text.value:
                     self.suggestions_box.children = []
                     return
                 
-            for match in matches:
+            for i, match in enumerate(matches):
                 abs_path = os.path.join(self.root_path, match)
                 is_dir = os.path.isdir(abs_path)
-                icon_html = '\U0001F4C1' if is_dir else '\U0001F4C4'
-
-                icon_widget = widgets.Label(
-                    value=icon_html
-                )
-                icon_widget.add_class('file-autocomplete-icon')
-
-                if os.sep in match:
-                    m = match[match.rindex(os.sep)+1:]
+                if i < len(self.suggestions_box.children) and hasattr(self.suggestions_box.children[0], 'children'):
+                    suggestion = self.suggestions_box.children[i]
+                    suggestion = self._reuse_suggestion(suggestion, match, is_dir)
                 else:
-                    m = match
-                    
-                text_button = widgets.Button(description=m)
-                text_button.file = match
-                text_button.on_click(self._on_suggestion_clicked)
+                    suggestion = self._create_suggestion(match, is_dir)
 
-                suggestion = widgets.HBox(
-                    [icon_widget, text_button],
-                    layout=widgets.Layout(align_items='center', padding='0px', margin='0px')
-                )
-                
-                suggestion.add_class('autocomplete-suggestions-hbox')
-                text_button.add_class('autocomplete-suggestions')
                 suggestion_widgets.append(suggestion)
 
         self.suggestions_box.children = suggestion_widgets
 
+    def _create_suggestion(self, match, is_dir):
+        icon_html = '\U0001F4C1' if is_dir else '\U0001F4C4'
+        icon_widget = widgets.Label(value=icon_html)
+        icon_widget.add_class('file-autocomplete-icon')
+
+        if os.sep in match:
+            description = match[match.rindex(os.sep)+1:]
+        else:
+            description = match
+
+        if is_dir:
+            description += os.sep
+            match += os.sep
+
+        text_button = widgets.Button(description=description)
+        text_button.file = match
+        text_button.on_click(self._on_suggestion_clicked)
+
+        suggestion = widgets.HBox(
+            [icon_widget, text_button],
+            layout=widgets.Layout(align_items='center', padding='0px', margin='0px')
+        )
+        
+        suggestion.add_class('autocomplete-suggestions-hbox')
+        text_button.add_class('autocomplete-suggestions')
+        return suggestion
+    
+    def _reuse_suggestion(self, suggestion, match, is_dir):
+        if os.sep in match:
+            description = match[match.rindex(os.sep)+1:]
+        else:
+            description = match
+
+        if is_dir:
+            description += os.sep
+            match += os.sep
+
+        suggestion.children[1].description = description
+        suggestion.children[1].file = match
+        suggestion.children[0].value = '\U0001F4C1' if is_dir else '\U0001F4C4'
+        return suggestion
+
     def _on_suggestion_clicked(self, button):
+        matches = self._get_matching_files(button.file)
         self.text.value = button.file
-        self._update_suggestions([button.file])
+        self._update_suggestions(matches, clicked=True)
+
+    def observe(self, *args, **kwargs):
+        if hasattr(self, 'text'):
+            # If the text widget has an observe method, call it
+            return self.text.observe(*args, **kwargs)
+        
+        # Otherwise, call the superclass observe method
+        return super().observe(*args, **kwargs)
 
     def __getattribute__(self, name):
         if name == 'value':
             return self.text.value
         return super().__getattribute__(name)
-    
     
 class CollapsibleVBox(widgets.VBox):
     def __init__(self, children=None, title='Section', collapsed=False):

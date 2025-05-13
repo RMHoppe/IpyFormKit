@@ -17,6 +17,10 @@
     display: var(--autocomplete-focus);
 }
 
+.suggestion-box input {
+    color: inherit !important;
+}
+
 .suggestion-box:hover {
     --autocomplete-focus: block;
 }
