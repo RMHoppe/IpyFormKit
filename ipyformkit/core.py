@@ -1,6 +1,6 @@
 import ipywidgets as widgets
 from IPython.display import display, HTML
-import os, sys, copy
+import os
 from .custom_widgets import *
 from .auxfuncs import *
 

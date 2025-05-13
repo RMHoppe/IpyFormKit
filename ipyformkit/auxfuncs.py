@@ -1,5 +1,4 @@
 from decimal import Decimal
-import asyncio
 from time import time
 from threading import Timer
 

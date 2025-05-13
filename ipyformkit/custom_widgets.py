@@ -1,6 +1,5 @@
 import ipywidgets as widgets
-from IPython.display import display, HTML
-import os, copy
+import os
 
 class FileAutocomplete(widgets.VBox):
     def __init__(self, root_path='./', placeholder='Start typing a file name...', max_results=10, **kwargs):
