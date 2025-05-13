@@ -50,7 +50,7 @@
 .ifk-form {
     width: 100%;
     padding: 10px;
-    margin: 0 0 10px 0;
+    margin: 5px 0 5px 0;
     border: 1px solid var(--ifk-form-border-color);
     background-color: var(--ifk-layout-color1);
     break-inside: avoid; /* helps prevent form from splitting between columns */
