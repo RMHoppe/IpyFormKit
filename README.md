@@ -56,20 +56,20 @@ form.display()
 Retrieve values:
 ```python
 values = form.get_values() # returns unchecked values
-out = form.check_and_return_values() # return checked values and highlights missing mandatory fields
+out = form.check_and_return_values() # return checked values and highlights missing mandatory inputs
 ```
 
 ## Documentation
 `ifk.Form()` is a class that creates a form using ipyipywidgets. It can be displayed using its `.display()` method. It takes a dictionary as input and generates the corresponding ipywidgets. The class also supports various features such as validation, conditional display, and custom styling. The arguments `mandatory`, `disable`, `hide` and `check` expect dictionaries with the affected field name as a key and a function as a value. The function takes the current form inputs as a dictionary and returns a boolean value. The function should return True if the field should be disabled, hidden or checked, and False otherwise. The `.get_values()` method returns the current values of each input field without applying any validation. The `.check_and_return_values()` method will return the current values but validate that all checks are passed.
 
-| **Dictionary Value Type**   | **ipywidgets Widget Created**       | **Notes**                                                                |
-|-----------------------------|-------------------------------------|--------------------------------------------------------------------------|
-| `bool`                      | `ipywidgets.Checkbox`               | A checkbox with the dictionary key as its description.                   |
-| `int`                       | `ipywidgets.IntText`                | A text box for integer input.                                            |
-| `float`                     | `ipywidgets.FloatText`              | A text box for float input with step size based on decimal places.       |
-| `str` (contains `os.sep`)   | `FileAutocomplete`                  | A custom widget for selecting files from the working directory.          |
-| `str` (contains "password") | `ipywidgets.Password`               | A password input field.                                                  |
-| `str` (ends with `...`)     | `ipywidgets.Textarea`               | A multi-line text area with the placeholder text (excluding `...`).      |
-| `str` (other cases)         | `ipywidgets.Text`                   | A single-line text input field with the string as a placeholder.         |
-| `tuple`                     | `ipywidgets.Dropdown`               | A dropdown menu with the tuple values as options.                        |
-| Other types                 | `ipywidgets.Label`                  | A label displaying "Unsupported type: <type_name>".                      |
+| **Dictionary Value Type**   | **Created Widget**       | **Notes**                                                                |
+|-----------------------------|--------------------------|--------------------------------------------------------------------------|
+| `bool`                      | `ipywidgets.Checkbox`    | A checkbox with the dictionary key as its description.                   |
+| `int`                       | `ipywidgets.IntText`     | A text box for integer input.                                            |
+| `float`                     | `ipywidgets.FloatText`   | A text box for float input with step size based on decimal places.       |
+| `str` (contains `os.sep`)   | `FileAutocomplete`       | A custom widget for selecting files from the working directory.          |
+| `str` (contains "password") | `ipywidgets.Password`    | A password input field.                                                  |
+| `str` (ends with `...`)     | `ipywidgets.Textarea`    | A multi-line text area with the placeholder text (excluding `...`).      |
+| `str` (other cases)         | `ipywidgets.Text`        | A single-line text input field with the string as a placeholder.         |
+| `tuple`                     | `ipywidgets.Dropdown`    | A dropdown menu with the tuple values as options.                        |
+| Other types                 | `ipywidgets.Label`       | A label displaying "Unsupported type: <type_name>".                      |
