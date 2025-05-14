@@ -180,11 +180,18 @@ class Form(object):
         if hasattr(self, 'disable_conditions'):
             value_dict = self.get_values()
             for wid, condition in self.disable_conditions.items():
-                wid.wid.disabled = condition(value_dict)
-                if condition(value_dict):
-                    wid.wid.add_class('ifk-widget-input-disabled')
-                else:
-                    wid.wid.remove_class('ifk-widget-input-disabled')
+                try:
+                    disable = condition(value_dict)
+                    wid.wid.disabled = disable
+
+                    if disable:
+                        wid.wid.add_class('ifk-widget-input-disabled')
+                    else:
+                        wid.wid.remove_class('ifk-widget-input-disabled')
+
+                except Exception as e:
+                    print(f"Error updating disable state for {wid.label.value}\n{type(e).__name__}:{e}")
+
 
     #=====================================================================
     #@throttle(0.2)
@@ -192,10 +199,16 @@ class Form(object):
         if hasattr(self, 'hide_conditions'):
             value_dict = self.get_values()
             for wid, condition in self.hide_conditions.items():
-                if condition(value_dict):
-                    wid.layout.display = 'none'
-                else:
-                    wid.layout.display = 'block'
+                try:
+                    hide = condition(value_dict)
+                    if hide:
+                        wid.layout.display = 'none'
+                    else:
+                        wid.layout.display = 'block'
+
+                except Exception as e:
+                    print(f"Error updating hide state for {wid.label.value}\n{type(e).__name__}:{e}")
+
         
     #=====================================================================
     #@throttle(0.2)
@@ -203,10 +216,16 @@ class Form(object):
         if hasattr(self, 'check_conditions'):
             value_dict = self.get_values()
             for wid, condition in self.check_conditions.items():
-                if condition(value_dict):
-                    wid.wid.remove_class('ifk-widget-input-error')
-                else:
-                    wid.wid.add_class('ifk-widget-input-error')
+                try:
+                    check = condition(value_dict)
+                    if check:
+                        wid.wid.remove_class('ifk-widget-input-error')
+                    else:
+                        wid.wid.add_class('ifk-widget-input-error')
+
+                except Exception as e:
+                    print(f"Error updating check state for {wid.label.value}\n{type(e).__name__}:{e}")
+
 
     #=====================================================================
     def display(self):
