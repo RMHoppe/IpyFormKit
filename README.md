@@ -9,6 +9,8 @@ IpyFormKit is a Python library for creating dynamic, interactive forms using `ip
 - **Validation and Logic**: Add conditions to disable, hide, or validate fields dynamically based on user input.
 - **Masonry Layout**: Organize multiple forms in a responsive masonry-style layout.
 
-<img src="images/jupyterlab.png" alt="Jupyter Lab Example" width="400">
-<img src="images/vscode.png" alt="VSCode Example" width="400">
-<img src="images/googlecolab.png" alt="Google Colab Example" width="400">
+<div style="display: flex; justify-content: space-around;">
+  <img src="images/jupyterlab.png" alt="Jupyter Lab Example" width="300">
+  <img src="images/vscode.png" alt="VSCode Example" width="300">
+  <img src="images/googlecolab.png" alt="Google Colab Example" width="300">
+</div>
