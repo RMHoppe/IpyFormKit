@@ -8,6 +8,15 @@ IpyFormKit is a Python library for creating dynamic, interactive forms using `ip
 - **Custom Widgets**: Includes specialized widgets like `FileAutocomplete` for file selection and `CollapsibleVBox` for collapsible sections.
 - **Validation and Logic**: Add conditions to disable, hide, or validate fields dynamically based on user input.
 - **Masonry Layout**: Organize multiple forms in a responsive masonry-style layout.
+- **Adaptive CSS Styling** Seamless integration with Jupyter Notebook/Lab, Google Colab and VScode themes.
+
+<div style="display: flex; justify-content: space-around;">
+  <img src="https://raw.githubusercontent.com/RMHoppe/IpyFormKit/refs/heads/main/images/jupyterlab-light.png" alt="Jupyter Lab Light Example" width="300">
+  <img src="https://raw.githubusercontent.com/RMHoppe/IpyFormKit/refs/heads/main/images/jupyterlab-dark.png" alt="Jupyter Lab Dark Example" width="300">
+  <img src="https://raw.githubusercontent.com/RMHoppe/IpyFormKit/refs/heads/main/images/vscode.png" alt="VSCode Example" width="300">
+  <img src="https://raw.githubusercontent.com/RMHoppe/IpyFormKit/refs/heads/main/images/googlecolab.png" alt="Google Colab Example" width="300">
+</div>
+
 
 ## Installation
 ```bash
@@ -19,17 +28,6 @@ For use in Google Colab one currently needs to downgrade ipywidgets as widgets a
 pip install ipyformkit
 pip install "ipywidgets>=7,<8"
 ```
-
-## Adaptive CSS Styling
-
-Seamless integration with Jupyter notebook, Jupyter Lab, Google Colab and VScode themes.
-
-<div style="display: flex; justify-content: space-around;">
-  <img src="https://raw.githubusercontent.com/RMHoppe/IpyFormKit/refs/heads/main/images/jupyterlab-light.png" alt="Jupyter Lab Light Example" width="300">
-  <img src="https://raw.githubusercontent.com/RMHoppe/IpyFormKit/refs/heads/main/images/jupyterlab-dark.png" alt="Jupyter Lab Dark Example" width="300">
-  <img src="https://raw.githubusercontent.com/RMHoppe/IpyFormKit/refs/heads/main/images/vscode.png" alt="VSCode Example" width="300">
-  <img src="https://raw.githubusercontent.com/RMHoppe/IpyFormKit/refs/heads/main/images/googlecolab.png" alt="Google Colab Example" width="300">
-</div>
 
 ## Example Usage
 ```python
