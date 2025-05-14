@@ -1,11 +1,11 @@
 [project]
 name = "ipyformkit"
-version = "0.1.4"
+version = "0.1.6"
 description = "Easy form creation with ipywidgets in Jupyter"
-authors = [{ name="Richard Hoppe", email="richard.m.hoppe@gmail.com" }]
+authors = [{ name="Richard Hoppe" }]
 license = { file="LICENSE" }
 readme = "README.md"
-requires-python = ">= 3.8"
+requires-python = ">= 3.7"
 dependencies = [
     "ipywidgets>=8.0.0",
     "traitlets",
