@@ -10,7 +10,8 @@ IpyFormKit is a Python library for creating dynamic, interactive forms using `ip
 - **Masonry Layout**: Organize multiple forms in a responsive masonry-style layout.
 
 <div style="display: flex; justify-content: space-around;">
-  <img src="images/jupyterlab.png" alt="Jupyter Lab Example" width="300">
+  <img src="images/jupyterlab-light.png" alt="Jupyter Lab Light Example" width="300">
+  <img src="images/jupyterlab-dark.png" alt="Jupyter Lab Dark Example" width="300">
   <img src="images/vscode.png" alt="VSCode Example" width="300">
   <img src="images/googlecolab.png" alt="Google Colab Example" width="300">
 </div>
