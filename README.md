@@ -72,5 +72,5 @@ out = form.check_and_return_values() # return checked values and highlights miss
 | `str` (ends with `...`)     | `ipywidgets.Textarea`    | A multi-line text area with the placeholder text (excluding `...`).        |
 | `str` (other cases)         | `ipywidgets.Text`        | A single-line text input field with the string as a placeholder.           |
 | `tuple`                     | `ipywidgets.Dropdown`    | A dropdown menu with the tuple values as options.                          |
-| `dictionary`                | `ifk.Form`               | A collapsible sub-form with the dictionary mapped according to this table. |
+| `dictionary`                | `...`                    | A collapsible sub-form with the dictionary mapped according to this table. |
 | Other types                 | `ipywidgets.Label`       | A label displaying "Unsupported type: <type_name>".                        |
