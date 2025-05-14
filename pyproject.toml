@@ -13,6 +13,9 @@ dependencies = [
 ]
 keywords = ["widgets", "ipywidgets", "form", "Jupyter"]
 
+[project.urls]
+Homepage = "https://github.com/RMHoppe/IpyFormKit"
+
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -22,3 +25,6 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+ipyformkit = ["assets/*.css"]

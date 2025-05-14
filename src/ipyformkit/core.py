@@ -10,8 +10,8 @@ def load_stylesheets():
     # Get the directory of this file (core.py)
     module_dir = os.path.dirname(os.path.abspath(__file__))
     stylesheets = [
-        'custom_widgets.css',
-        'ipyformkit.css'
+        'assets/custom_widgets.css',
+        'assets/ipyformkit.css'
     ]
 
     sheets = []
