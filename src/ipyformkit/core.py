@@ -7,6 +7,10 @@ from .auxfuncs import *
 
 #=====================================================================
 def load_stylesheets():
+    """
+    Load custom stylesheets for the widgets.
+    :return: A list of HTML elements containing the stylesheets.
+    """
     # Get the directory of this file (core.py)
     module_dir = os.path.dirname(os.path.abspath(__file__))
     stylesheets = [
@@ -28,6 +32,12 @@ def load_stylesheets():
 
 #=====================================================================
 def create_widget(key, value):
+    """
+    Create a widget based on the type of value.
+    :param key: The key for the widget.
+    :param value: The default value for the widget.
+    :return: A widget object.
+    """
     label = widgets.Label(value=key)
     label.add_class('ifk-widget-label')
     
@@ -37,7 +47,7 @@ def create_widget(key, value):
     if value is None:
         wid = widgets.Button(description=key)
         wid.add_class('ifk-widget-Button')
-        label.value = ''
+        box.children = box.children[1:]
     elif isinstance(value, bool):
         wid = widgets.Checkbox(value=value, description=key, indent=False)
         box.add_class('ifk-widget-Checkbox')
@@ -82,6 +92,30 @@ def create_widget(key, value):
 
 #=====================================================================
 def dict_to_form(input_dict, title=None, collapsed=None, nested=False):
+    """
+    Convert a dictionary to a form with widgets.
+
+    Parameters
+    ----------
+    input_dict : dict
+        A dictionary containing the input fields and their default values.
+        Keys represent field names, and values represent default values or options.
+    title : str, optional
+        The title of the form. Default is None.
+    collapsed : bool, optional
+        If True, the form will be collapsed by default.
+        If None, the form won't have a collapse toggle button and title.
+        Default is None.
+    nested : bool, optional
+        If True, the form will be nested. Default is False.
+
+    Returns
+    -------
+    vbox : ipywidgets.VBox
+        The main container widget for the form.
+    widgets_dict : dict
+        A dictionary mapping field names to their corresponding widgets.
+    """
     widgets_list = []
     widgets_dict = {}
 
@@ -131,14 +165,45 @@ def dict_to_form(input_dict, title=None, collapsed=None, nested=False):
 class Form(object):
     def __init__(self, input_dict, title=None, collapsed=None, max_width=600,
                  mandatory=None, disable=None, hide=None, check=None):
+        """
+        A class to create and manage interactive forms using ipywidgets.
+
+        Parameters
+        ----------
+        input_dict : dict
+            A dictionary containing the input fields and their default values.
+            Keys represent field names, and values represent default values or options.
+        title : str, optional
+            The title of the form. Default is None.
+        collapsed : bool, optional
+            If True, the form will be collapsed by default.
+            If None, the form won't have a collapse toggle button and title.
+            Default is None.
+        max_width : int, optional
+            The maximum width of the form in pixels. Default is 600.
+        mandatory : list of str, optional
+            A list of keys that are mandatory fields. Default is None.
+        disable : dict, optional
+            A dictionary where keys are field names and values are functions that
+            return a boolean to determine if the field should be disabled. Default is None.
+        hide : dict, optional
+            A dictionary where keys are field names and values are functions that
+            return a boolean to determine if the field should be hidden. Default is None.
+        check : dict, optional
+            A dictionary where keys are field names and values are functions that
+            return a boolean to validate the field's value. Default is None.
+
+        Attributes
+        ----------
+        vbox : ipywidgets.VBox
+            The main container widget for the form.
+        widgets_dict : dict
+            A dictionary mapping field names to their corresponding widgets.
+        """
         
-        self.input_dict = input_dict
         self.title = title
-        self.collapsed = collapsed
-        self.mandatory = mandatory
-        self.disable = disable
-        self.hide = hide
-        self.check = check
+        self._input_dict = input_dict
+        self._mandatory = mandatory
 
         self.vbox, self.widgets_dict = dict_to_form(input_dict, title=title, collapsed=collapsed)
         self.vbox.layout.max_width = f'{max_width}px'
@@ -148,9 +213,9 @@ class Form(object):
                 wid = self.widgets_dict[key]
                 wid.label.value = f"{wid.label.value} *"
 
-        self.disable_conditions = self.add_observer(disable, self.update_disable)
-        self.hide_conditions = self.add_observer(hide, self.update_hide)
-        self.check_conditions = self.add_observer(check, self.update_check)
+        self._disable_conditions = self.add_observer(disable, self.update_disable)
+        self._hide_conditions = self.add_observer(hide, self.update_hide)
+        self._check_conditions = self.add_observer(check, self.update_check)
 
         # Set initial state for disable and hide conditions
         self.update_check()
@@ -159,6 +224,12 @@ class Form(object):
 
     #=====================================================================
     def add_observer(self, conditions, func):
+        """
+        Add observers to the widgets based on the provided conditions.
+        :param conditions: A dictionary of widget keys and corresponding functions.
+        :param func: The function to call when the widget value changes.
+        :return: A dictionary of widgets and their corresponding functions.
+        """
         # Store conditions as a dictionary of widgets and functions
         conditions_out = {}
         if isinstance(conditions, dict):
@@ -171,74 +242,129 @@ class Form(object):
             # The function will be called when any of the widgets change
             for key, wid in self.widgets_dict.items():
                 wid.wid.observe(func, names='value')
+        elif conditions:
+            print(f"Warning: Conditions should be a dictionary. Got {type(conditions).__name__} instead.")
 
         return conditions_out
         
     #=====================================================================
     #@throttle(0.2)
     def update_disable(self, change=None):
-        if hasattr(self, 'disable_conditions'):
-            value_dict = self.get_values()
-            for wid, condition in self.disable_conditions.items():
-                try:
-                    disable = condition(value_dict)
-                    wid.wid.disabled = disable
+        """
+        Update the disable state of the widgets based on the provided conditions.
+        :param change: is provided by observe, but not used here.
+        """
+        value_dict = self.get_values()
+        for wid, condition in self._disable_conditions.items():
+            try:
+                disable = condition(value_dict)
+                wid.wid.disabled = disable
 
-                    if disable:
-                        wid.wid.add_class('ifk-widget-input-disabled')
-                    else:
-                        wid.wid.remove_class('ifk-widget-input-disabled')
+                if disable:
+                    wid.wid.add_class('ifk-widget-input-disabled')
+                else:
+                    wid.wid.remove_class('ifk-widget-input-disabled')
 
-                except Exception as e:
-                    print(f"Error updating disable state for {wid.label.value}\n{type(e).__name__}:{e}")
+            except Exception as e:
+                print(f"Error updating disable state for {wid.label.value}\n{type(e).__name__}:{e}")
 
 
     #=====================================================================
     #@throttle(0.2)
     def update_hide(self, change=None):
-        if hasattr(self, 'hide_conditions'):
-            value_dict = self.get_values()
-            for wid, condition in self.hide_conditions.items():
-                try:
-                    hide = condition(value_dict)
-                    if hide:
-                        wid.layout.display = 'none'
-                    else:
-                        wid.layout.display = 'block'
+        """
+        Update the display state of the widgets based on the provided conditions.
+        :param change: is provided by observe, but not used here.
+        """
+        value_dict = self.get_values()
+        for wid, condition in self._hide_conditions.items():
+            try:
+                hide = condition(value_dict)
+                if hide:
+                    wid.layout.display = 'none'
+                else:
+                    wid.layout.display = 'block'
 
-                except Exception as e:
-                    print(f"Error updating hide state for {wid.label.value}\n{type(e).__name__}:{e}")
+            except Exception as e:
+                print(f"Error updating hide state for {wid.label.value}\n{type(e).__name__}:{e}")
 
         
     #=====================================================================
     #@throttle(0.2)
     def update_check(self, change=None):
-        if hasattr(self, 'check_conditions'):
-            value_dict = self.get_values()
-            for wid, condition in self.check_conditions.items():
-                try:
-                    check = condition(value_dict)
-                    if check:
-                        wid.wid.remove_class('ifk-widget-input-error')
-                    else:
-                        wid.wid.add_class('ifk-widget-input-error')
+        """
+        Update the check state of the widgets based on the provided conditions.
+        :param change: is provided by observe, but not used here.
+        """
+        value_dict = self.get_values()
+        for wid, condition in self._check_conditions.items():
+            try:
+                check = condition(value_dict)
+                if check:
+                    wid.wid.remove_class('ifk-widget-input-error')
+                else:
+                    wid.wid.add_class('ifk-widget-input-error')
 
-                except Exception as e:
-                    print(f"Error updating check state for {wid.label.value}\n{type(e).__name__}:{e}")
+            except Exception as e:
+                print(f"Error updating check state for {wid.label.value}\n{type(e).__name__}:{e}")
 
 
     #=====================================================================
     def display(self):
+        """
+        Display the form in the notebook.
+        """
         items = [self.vbox, *load_stylesheets()]
         display(*items)
 
     #=====================================================================
     def get_values(self):
+        """
+        Get the values of the widgets in the form as a dictionary.
+        :return: A dictionary of key-value pairs representing the widget values.
+        """
         out = {key: wid.wid.value for key, wid in self.widgets_dict.items() if hasattr(wid.wid, 'value')}
         return out
     
     #=====================================================================
+    def set_values(self, values, verbose=True):
+        """
+        Set the values of the widgets in the form.
+        :param values: A dictionary of key-value pairs to set the widget values.
+        :param verbose: If True, print warnings for invalid keys.
+        """
+        def set_key(key, value):
+            if key in self.widgets_dict:
+                wid = self.widgets_dict[key]
+                if isinstance(value, (tuple, list)):
+                    value = value[0]
+
+                if hasattr(wid.wid, 'value'):
+                    if type(wid.wid.value) == type(value):
+                        wid.wid.value = value
+                    else:
+                        print(f"Warning: Type mismatch for {key}. Expected {type(wid.wid.value)}, got {type(value)}.")
+                elif value:
+                    print(f"Warning: {key} is not a valid widget.")
+            elif verbose:
+                print(f"Warning: {key} is not a valid key in the form.")
+
+        for key, value in values.items():
+            if isinstance(key, (tuple, list)):
+                for sub_key, sub_value in zip(key, value):
+                    set_key(sub_key, sub_value)
+            elif isinstance(value, dict):
+                for sub_key, sub_value in value.items():
+                    set_key(sub_key, sub_value)
+            else:
+                set_key(key, value)
+    
+    #=====================================================================
     def check_and_return_values(self):
+        """
+        Check the values of the widgets in the form and return them as a dictionary.
+        :return: A dictionary of key-value pairs representing the widget values, or None if validation fails.
+        """
         out = {}
         abort = False
         value_dict = self.get_values()
@@ -247,7 +373,7 @@ class Form(object):
                 value = wid.wid.value
                 disabled = wid.wid.disabled
                 hidden = wid.layout.display == 'none'
-                mandatory = key in self.mandatory if self.mandatory else False
+                mandatory = key in self._mandatory if self._mandatory else False
                 check_func = self.check_conditions.get(wid, lambda d:True)
                 valid = check_func(value_dict)
                 
@@ -274,11 +400,29 @@ class Form(object):
 #=====================================================================
 class Masonry(object):
     def __init__(self, forms):
+        """
+        Create a masonry layout with the provided forms.
+
+        Parameters
+        ----------
+        forms : list of Form
+            A list of Form objects to be displayed in the masonry layout.
+
+        Attributes
+        ----------
+        forms : list of Form
+            The list of Form objects.
+        box : ipywidgets.Box
+            The main container widget for the masonry layout.
+        """
         self.forms = forms
         self.box = widgets.Box([form.vbox for form in forms])
         self.box.add_class('ifk-masonry')
         
     #=====================================================================
     def display(self):
+        """
+        Display the masonry layout in the notebook.
+        """
         items = [self.box, *load_stylesheets()]
         display(*items)

@@ -53,6 +53,12 @@ form = ifk.Form(test, title='Test Form', mandatory=mandatory, disable=disable, h
 form.display()
 ```
 
+Text input is converted into placeholders instead of values by default. One can set multiple values at once by supplying a dictionary to the `.set_values()` method. The dictionary keys should match the field names in the form. The values can be any type supported by ipywidgets.
+
+```python
+form.set_values({'first name': 'Arthur', 'last name': 'Dent', 'age': 42})
+```
+
 Retrieve values:
 ```python
 values = form.get_values() # returns unchecked values
