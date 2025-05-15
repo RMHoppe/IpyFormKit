@@ -126,6 +126,9 @@ class FileAutocomplete(widgets.VBox):
     def __getattribute__(self, name):
         if name == 'value':
             return self.text.value
+        elif name == 'disabled':
+            return self.text.disabled
+        
         return super().__getattribute__(name)
     
 class CollapsibleVBox(widgets.VBox):
