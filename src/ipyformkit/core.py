@@ -374,7 +374,7 @@ class Form(object):
                 disabled = wid.wid.disabled
                 hidden = wid.layout.display == 'none'
                 mandatory = key in self._mandatory if self._mandatory else False
-                check_func = self.check_conditions.get(wid, lambda d:True)
+                check_func = self._check_conditions.get(wid, lambda d:True)
                 valid = check_func(value_dict)
                 
                 if value == '' and mandatory:
