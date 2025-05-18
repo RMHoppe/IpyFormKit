@@ -39,52 +39,39 @@ def create_widget(key, value):
     :return: A widget object.
     """
     label = widgets.Label(value=key)
-    label.add_class('ifk-widget-label')
     
     box = widgets.VBox([label])
     box.add_class('ifk-widget-box')
     
     if value is None:
         wid = widgets.Button(description=key)
-        wid.add_class('ifk-widget-Button')
         box.children = box.children[1:]
     elif isinstance(value, bool):
         wid = widgets.Checkbox(value=value, description=key, indent=False)
-        box.add_class('ifk-widget-Checkbox')
         box.children = box.children[1:]
     elif isinstance(value, int):
         wid = widgets.IntText(value=value)
-        box.add_class('ifk-widget-IntText')
     elif isinstance(value, float):
         step = 10**(-count_decimal_places(value))
         wid = widgets.FloatText(value=value, step=step)
-        box.add_class('ifk-widget-FloatText')
     elif isinstance(value, str):
         if os.sep in value:
             wid = FileAutocomplete(placeholder=value)
             box.add_class('ifk-widget-FileAutocomplete')
-            wid.text.add_class('ifk-widget-input')
         elif 'password' in key.lower():
             wid = widgets.Password(placeholder=value)
-            box.add_class('ifk-widget-Password')
         elif value.endswith('...'):
             wid = widgets.Textarea(placeholder=value[:-3])
-            box.add_class('ifk-widget-Textarea')
         else:
             wid = widgets.Text(placeholder=value)
-            box.add_class('ifk-widget-Text')
     elif isinstance(value, tuple):
         if value:
             wid = widgets.Dropdown(options=value, value=value[0])
-            box.add_class('ifk-widget-Dropdown')
         else:
             wid = widgets.Label(value="(Empty list - no options)")
-            box.add_class('ifk-widget-Label')
     else:
         wid = widgets.Label(value=f"Unsupported type: {type(value).__name__}")
-        box.add_class('ifk-widget-Label')
     
-    wid.add_class('ifk-widget-input')
     box.children = list(box.children) + [wid,]
     box.label = label
     box.wid = wid
