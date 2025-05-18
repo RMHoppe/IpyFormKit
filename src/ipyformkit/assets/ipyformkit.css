@@ -10,7 +10,7 @@
                           #f7f7f7)));
 
     --ifk-layout-color2: var(--colab-highlighted-surface-color,
-                          var(--vscode-descriptionForeground,
+                          var(--vscode-dropdown-background,
                           var(--jp-layout-color4,
                           #e0e0e0)));
 
@@ -75,7 +75,8 @@
     justify-content: end; /* Vertical alignment to bottom */
 }
 
-.ifk-widget-box:has(input[type=text]) {
+.ifk-widget-box:has(input[type=text]),
+.ifk-widget-box:has(textarea) {
     flex-grow: 1;
 }
 
@@ -100,6 +101,15 @@
 
 .ifk-widget-box input[type=number] {
     width: 16ch;
+}
+
+.ifk-widget-box button {
+    background-color: var(--ifk-layout-color3) !important;
+    color: var(--ifk-widget-input-color) !important;
+}
+
+.ifk-widget-box button:hover {
+    background-color: var(--ifk-layout-color2) !important;
 }
 
 .ifk-form-toggle-button {
