@@ -15,10 +15,16 @@
     padding: 0px;
     margin: 0px;
     display: var(--autocomplete-focus);
+    border: 1px solid var(--jp-layout-color0);
+}
+
+.suggestion-box:empty {
+    border: none !important;
 }
 
 .suggestion-box input {
     color: inherit !important;
+    background-color: var(--jp-layout-color0);
 }
 
 .suggestion-box:hover {
@@ -40,13 +46,13 @@
     display: flex;
     justify-content: flex-start;
     border: none;
-    background-color: transparent;
+    background-color: transparent !important;
 }  
 
 .file-autocomplete-icon {
     font-size: 10px;
-    width: 30px;
+    width: 30px !important;
     padding-left: 5px;
     margin: 0;
-    background-color: transparent;
+    background-color: transparent !important;
 }
