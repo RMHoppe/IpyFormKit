@@ -97,6 +97,7 @@
     margin: 0;
     color: var(--ifk-widget-input-color) !important;
     background-color: var(--ifk-layout-color0) !important;
+    border: none !important;
 }
 
 .ifk-widget-box input[type=number] {
