@@ -44,12 +44,13 @@ test = {'first name':'Zaphod',
        }
 
 
-mandatory = ['first name', 'last name', 'age']
+mandatory = ['last name', 'age']
 disable = {'last name': lambda d: d['first name'] == '',}
 hide = {'house': lambda d: d['street'] == '',}
 check = {'age': lambda d: d['age'] > 0,}
+tooltips = {'first name':'What your mother calls you when you are in trouble.'}
 
-form = ifk.Form(test, title='Test Form', mandatory=mandatory, disable=disable, hide=hide, check=check, max_width=400)
+form = ifk.Form(test, title='Test Form', mandatory=mandatory, disable=disable, hide=hide, check=check, tooltips=tooltips, max_width=400)
 form.display()
 ```
 

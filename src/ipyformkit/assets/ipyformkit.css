@@ -55,6 +55,12 @@
     border: 1px solid var(--ifk-form-border-color);
     background-color: var(--ifk-layout-color1);
     break-inside: avoid; /* helps prevent form from splitting between columns */
+    overflow: visible;
+}
+
+.ifk-form .widget-hbox,
+.ifk-form .widget-vbox {
+    overflow: visible;
 }
 
 .ifk-form-title {
@@ -68,10 +74,12 @@
     color: var(--ifk-widget-label-color);
     opacity: 50%;
 }
+
 .ifk-widget-box {
     padding: calc(2*var(--jp-widgets-margin));
     height: fit-content;
-    justify-content: end; /* Vertical alignment to bottom */
+    margin-top: auto; /* Vertical alignment to bottom */
+    min-width: 0px;
 }
 
 .ifk-widget-label {
@@ -81,11 +89,13 @@
 .ifk-widget-box:has(input[type=text]),
 .ifk-widget-box:has(textarea) {
     flex-grow: 1;
+    flex-shrink: 1;
 }
 
 .ifk-widget-box .widget-inline-hbox {
     width: auto;
     margin: 0;
+    align-items: center;
 }
 
 .ifk-widget-box .widget-label,
@@ -105,7 +115,7 @@
 }
 
 .ifk-widget-box input[type=number] {
-    width: 16ch;
+    max-width: 16ch;
 }
 
 .ifk-widget-box button {
@@ -132,6 +142,38 @@
 
 .ifk-widget-input-missing input {
     border: 1px solid rgba(255, 0, 0, 0.75) !important;
+}
+
+.ifk-tooltip {
+    background-color: var(--ifk-layout-color3);
+    color: var(--ifk-layout-color1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;          /* Makes it a circle */
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+.ifk-tooltip-text {
+    visibility: hidden;
+    position: absolute;
+    z-index: 1000;
+    width: 200px;
+    left: 0;
+    padding: var(--jp-widgets-margin);
+    border: 1px solid var(--ifk-layout-color3);
+    background-color: var(--ifk-layout-color1);
+    color: var(--ifk-widget-label-color);
+    font-weight: normal;
+    font-size: 0.9em;
+    line-height: normal;
+}
+
+.ifk-tooltip:hover .ifk-tooltip-text {
+    visibility: visible;
 }
 
 .ifk-widget-box .suggestion-box {

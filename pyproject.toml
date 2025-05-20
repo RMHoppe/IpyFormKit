@@ -1,6 +1,6 @@
 [project]
 name = "ipyformkit"
-version = "0.1.10"
+version = "0.2.0-alpha"
 description = "Easy form creation with ipywidgets in Jupyter"
 authors = [{ name="Richard Hoppe" }]
 license = { file="LICENSE" }

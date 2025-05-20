@@ -1,5 +1,5 @@
 import ipywidgets as widgets
-from IPython.display import display, HTML
+from IPython.display import display, HTML, Javascript
 import os
 from .custom_widgets import *
 from .auxfuncs import *
@@ -40,15 +40,15 @@ def create_widget(key, value):
     """
     label = widgets.Label(value=key)
     
-    box = widgets.VBox([label])
+    box = widgets.Box([label])
     box.add_class('ifk-widget-box')
+    box.add_class('widget-vbox')
     
     if value is None:
         wid = widgets.Button(description=key)
         box.children = box.children[1:]
     elif isinstance(value, bool):
-        wid = widgets.Checkbox(value=value, description=key, indent=False)
-        box.children = box.children[1:]
+        wid = widgets.Checkbox(value=value, indent=False)
     elif isinstance(value, int):
         wid = widgets.IntText(value=value)
     elif isinstance(value, float):
@@ -73,6 +73,12 @@ def create_widget(key, value):
         wid = widgets.Label(value=f"Unsupported type: {type(value).__name__}")
     
     box.children = list(box.children) + [wid,]
+    
+    if type(wid) == widgets.Checkbox:
+        box.remove_class('widget-vbox')
+        box.add_class('widget-hbox')
+        box.children = box.children[::-1]
+
     box.label = label
     box.wid = wid
     return box
@@ -151,7 +157,7 @@ def dict_to_form(input_dict, title=None, collapsed=None, nested=False):
 #=====================================================================
 class Form(object):
     def __init__(self, input_dict, title=None, collapsed=None, max_width=600,
-                 mandatory=None, disable=None, hide=None, check=None):
+                 mandatory=None, disable=None, hide=None, check=None, tooltips=None):
         """
         A class to create and manage interactive forms using ipywidgets.
 
@@ -208,6 +214,8 @@ class Form(object):
         self.update_check()
         self.update_disable()
         self.update_hide()
+
+        self.set_tooltips(tooltips)
 
     #=====================================================================
     def add_observer(self, conditions, func):
@@ -294,6 +302,27 @@ class Form(object):
 
             except Exception as e:
                 print(f"Error updating check state for {wid.label.value}\n{type(e).__name__}:{e}")
+
+    
+    #=====================================================================
+    def set_tooltips(self, tooltips):
+        """
+        Set tooltips for the widgets in the form.
+        :param
+        tooltips: A dictionary where keys are field names and values are tooltips.
+        """
+        if tooltips:
+            for key, tip in tooltips.items():
+                if key in self.widgets_dict:
+                    wid = self.widgets_dict[key]
+                    tooltip = widgets.HTML(f'<div class="ifk-tooltip">?<span class="ifk-tooltip-text">{tip}</span></div>')
+                    hbox = widgets.HBox([wid.label, tooltip])
+                    children = list(wid.children)
+                    children[children.index(wid.label)] = hbox
+                    wid.children = children
+
+                else:
+                    print(f"Warning: {key} is not a valid key in the form.")
 
 
     #=====================================================================

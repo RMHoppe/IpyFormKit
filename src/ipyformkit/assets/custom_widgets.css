@@ -9,8 +9,8 @@
              
 .suggestion-box {
     width: 100%;
-    max-height: 150px;
-    overflow-y: auto;
+    max-height: calc(var(--jp-widgets-inline-height)*5);
+    overflow-y: scroll !important;
     overflow-x: hidden;
     padding: 0px;
     margin: 0px;
