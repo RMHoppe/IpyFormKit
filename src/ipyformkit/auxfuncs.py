@@ -32,3 +32,11 @@ def count_decimal_places(value: float) -> int:
     d = Decimal(str(value)).normalize()
     # Negative exponent means decimal places
     return abs(d.as_tuple().exponent)
+
+#=====================================================================
+def can_convert(value, target_type):
+    try:
+        target_type(value)
+        return True
+    except (ValueError, TypeError):
+        return False

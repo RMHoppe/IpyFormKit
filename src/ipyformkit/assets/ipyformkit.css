@@ -88,8 +88,10 @@
 
 .ifk-widget-box:has(input[type=text]),
 .ifk-widget-box:has(textarea) {
-    flex-grow: 1;
-    flex-shrink: 1;
+    flex: 1 1 var(--jp-widgets-inline-width);
+}
+.ifk-widget-box:has(.ui-slider) {
+    flex: 0 1 var(--jp-widgets-inline-width-short);
 }
 
 .ifk-widget-box .widget-inline-hbox {
@@ -188,4 +190,8 @@
                           
 .ifk-widget-box .autocomplete-suggestions-hbox:hover {
     background-color: var(--ifk-layout-color1);
+}
+
+.ifk-widget-box .widget-slider .widget-readout {
+    min-width: fit-content;
 }

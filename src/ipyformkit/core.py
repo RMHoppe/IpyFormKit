@@ -47,6 +47,8 @@ def create_widget(key, value):
     if value is None:
         wid = widgets.Button(description=key)
         box.children = box.children[1:]
+    elif isinstance(value, range):
+        wid = widgets.IntSlider(value=value.start, min=value.start, max=value.stop, step=value.step)
     elif isinstance(value, bool):
         wid = widgets.Checkbox(value=value, indent=False)
     elif isinstance(value, int):
@@ -356,7 +358,7 @@ class Form(object):
                     value = value[0]
 
                 if hasattr(wid.wid, 'value'):
-                    if type(wid.wid.value) == type(value):
+                    if can_convert(value, type(wid.wid.value)):
                         wid.wid.value = value
                     else:
                         print(f"Warning: Type mismatch for {key}. Expected {type(wid.wid.value)}, got {type(value)}.")

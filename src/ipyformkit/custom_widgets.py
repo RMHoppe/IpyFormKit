@@ -1,8 +1,10 @@
 import ipywidgets as widgets
+from traitlets import Any, observe
+import numpy as np
 import os
 
 class FileAutocomplete(widgets.VBox):
-    def __init__(self, root_path='./', placeholder='Start typing a file name...', max_results=10, **kwargs):
+    def __init__(self, root_path='./', placeholder='Start typing a file name...', max_results=99, **kwargs):
         super().__init__()
         
         self.root_path = root_path
@@ -122,14 +124,22 @@ class FileAutocomplete(widgets.VBox):
         
         # Otherwise, call the superclass observe method
         return super().observe(*args, **kwargs)
-
-    def __getattribute__(self, name):
-        if name == 'value':
-            return self.text.value
-        elif name == 'disabled':
-            return self.text.disabled
         
-        return super().__getattribute__(name)
+    @property
+    def disabled(self):
+        return self.text.disabled
+    
+    @disabled.setter
+    def disabled(self, val):
+        self.text.disabled = val
+
+    @property
+    def value(self):
+        return self.text.value
+    
+    @value.setter
+    def value(self, val):
+        self.text.value = val
     
 class CollapsibleVBox(widgets.VBox):
     def __init__(self, children=None, title='Section', collapsed=False):
@@ -164,3 +174,46 @@ class CollapsibleVBox(widgets.VBox):
         self.collapsed = not self.collapsed
         self.content_box.layout.display = 'none' if self.collapsed else 'block'
         self.toggle_button.description = '\u25B6' if self.collapsed else '\u25BC'
+
+
+class ArraySlider(widgets.Box):
+    def __init__(self, array, **kwargs):
+        super().__init__()
+        self.array = np.asarray(array)
+
+        self.slider = widgets.IntSlider(min=0, max=len(array)-1, step=1, readout=False, **kwargs)
+        self.readout = widgets.Label(value=str(self.array[0]))
+        self.children = [self.slider, self.readout]
+
+        # Update readout on slider change
+        self.slider.observe(self._update_value, names='value')
+
+        # Set initial value
+        self._update_value({'new': self.slider.value})
+
+        self.add_class('array-slider')
+        self.readout.add_class('array-slider-readout')
+        self.slider.add_class('array-slider-slider')
+
+    def _update_value(self, change):
+        val = self.array[change['new']]
+        self.value = val  # this updates the trait
+        self.readout.value = str(val)
+
+    @observe('value')
+    def _value_changed(self, change):
+        # Optional: If the value is updated externally, update the slider position
+        try:
+            idx = np.where(self.array == change['new'])[0][0]
+            self.slider.value = idx
+        except IndexError:
+            pass
+        
+    @property
+    def disabled(self):
+        return self.slider.disabled
+    
+    @disabled.setter
+    def disabled(self, val):
+        self.slider.disabled = val
+
