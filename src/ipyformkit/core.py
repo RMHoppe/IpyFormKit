@@ -378,7 +378,7 @@ class Form(object):
                 set_key(key, value)
     
     #=====================================================================
-    def check_and_return_values(self):
+    def check_and_return_values(self, verbose=True):
         """
         Check the values of the widgets in the form and return them as a dictionary.
         :return: A dictionary of key-value pairs representing the widget values, or None if validation fails.
@@ -396,14 +396,14 @@ class Form(object):
                 valid = check_func(value_dict)
                 
                 if value == '' and mandatory:
-                    print(f"Mandatory field '{key}' is empty.")
+                    if verbose: print(f"Mandatory field '{key}' is empty.")
                     wid.wid.add_class('ifk-widget-input-missing')
                     abort = True
                 else:
                     wid.wid.remove_class('ifk-widget-input-missing')
                     
                 if not valid:
-                    print(f"Invalid input in field '{key}'.")
+                    if verbose: print(f"Invalid input in field '{key}'.")
                     abort = True
                 
                 if not (disabled or hidden):

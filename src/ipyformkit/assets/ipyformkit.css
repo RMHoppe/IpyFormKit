@@ -88,7 +88,7 @@
 
 .ifk-widget-box:has(input[type=text]),
 .ifk-widget-box:has(textarea) {
-    flex: 1 1 var(--jp-widgets-inline-width);
+    flex: 1 1;
 }
 .ifk-widget-box:has(.ui-slider) {
     flex: 0 1 var(--jp-widgets-inline-width-short);
