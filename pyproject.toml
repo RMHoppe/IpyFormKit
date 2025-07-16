@@ -1,6 +1,6 @@
 [project]
 name = "ipyformkit"
-version = "0.2.6"
+version = "0.2.7"
 description = "Easy form creation with ipywidgets in Jupyter"
 authors = [{ name="Richard Hoppe" }]
 license = { file="LICENSE" }
@@ -27,4 +27,4 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.package-data]
-ipyformkit = ["assets/*.css"]
+ipyformkit = ["assets/*.css", "assets/*.js"]
