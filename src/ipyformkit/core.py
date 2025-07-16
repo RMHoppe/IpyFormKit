@@ -4,31 +4,7 @@ import os
 from .custom_widgets import *
 from .auxfuncs import *
 
-
-#=====================================================================
-def load_stylesheets():
-    """
-    Load custom stylesheets for the widgets.
-    :return: A list of HTML elements containing the stylesheets.
-    """
-    # Get the directory of this file (core.py)
-    module_dir = os.path.dirname(os.path.abspath(__file__))
-    stylesheets = [
-        'assets/custom_widgets.css',
-        'assets/ipyformkit.css'
-    ]
-
-    sheets = []
-
-    for stylesheet in stylesheets:
-        stylesheet = module_dir + os.sep + stylesheet
-        if os.path.exists(stylesheet):
-            with open(stylesheet, 'r') as f:
-                css = f.read()
-                sheets.append(HTML(f'<style>{css}</style>'))
-        else:
-            print(f"Warning: {stylesheet} not found. Custom styles will not be applied.")
-    return sheets
+module_dir = os.path.dirname(os.path.abspath(__file__))
 
 #=====================================================================
 def create_widget(key, value):
@@ -328,12 +304,50 @@ class Form(object):
 
 
     #=====================================================================
+    def load_stylesheets(self):
+        """
+        Load custom stylesheets for the widgets.
+        :return: A list of HTML elements containing the stylesheets.
+        """
+        # Get the directory of this file (core.py)
+        stylesheets = [
+            'assets/custom_widgets.css',
+            'assets/ipyformkit.css'
+        ]
+
+        sheets = []
+
+        for stylesheet in stylesheets:
+            stylesheet = module_dir + os.sep + stylesheet
+            if os.path.exists(stylesheet):
+                with open(stylesheet, 'r') as f:
+                    css = f.read()
+                    sheets.append(HTML(f'<style>{css}</style>'))
+            else:
+                print(f"Warning: {stylesheet} not found. Custom styles will not be applied.")
+        return sheets
+
+
+    #=====================================================================
+    def load_tooltip_script(self):
+        script = module_dir + os.sep + 'assets/tooltip_script.js'
+        if os.path.exists(script):
+            with open(script, 'r') as f:
+                js = f.read()
+                return Javascript(js)
+        else:
+            print(f"Warning: {script} not found. Tooltips will not be functional.")
+            return Javascript('console.warn("Tooltip script not found. Tooltips will not be functional.")')
+
+
+    #=====================================================================
     def display(self):
         """
         Display the form in the notebook.
         """
-        items = [self.vbox, *load_stylesheets()]
+        items = [self.vbox, *self.load_stylesheets(), self.load_tooltip_script()]
         display(*items)
+
 
     #=====================================================================
     def get_values(self):
@@ -344,6 +358,7 @@ class Form(object):
         out = {key: wid.wid.value for key, wid in self.widgets_dict.items() if hasattr(wid.wid, 'value')}
         return out
     
+
     #=====================================================================
     def set_values(self, values, verbose=True):
         """
@@ -377,6 +392,7 @@ class Form(object):
             else:
                 set_key(key, value)
     
+
     #=====================================================================
     def check_and_return_values(self, verbose=True):
         """
@@ -442,5 +458,6 @@ class Masonry(object):
         """
         Display the masonry layout in the notebook.
         """
-        items = [self.box, *load_stylesheets()]
+        f0 = self.forms[0]
+        items = [self.box, *f0.load_stylesheets(), f0.load_tooltip_script()]
         display(*items)
