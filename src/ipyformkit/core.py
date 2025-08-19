@@ -394,7 +394,7 @@ class Form(object):
     
 
     #=====================================================================
-    def check_and_return_values(self, verbose=True):
+    def check_and_return_values(self, verbose=True, disabled_ok=False, hidden_ok=False):
         """
         Check the values of the widgets in the form and return them as a dictionary.
         :return: A dictionary of key-value pairs representing the widget values, or None if validation fails.
@@ -422,7 +422,10 @@ class Form(object):
                     if verbose: print(f"Invalid input in field '{key}'.")
                     abort = True
                 
-                if not (disabled or hidden):
+                ok = not disabled or disabled_ok
+                ok = ok and (not hidden or hidden_ok)
+                
+                if ok:
                     out[key] = value
                     
         if abort:

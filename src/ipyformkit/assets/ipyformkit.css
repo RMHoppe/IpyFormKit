@@ -55,12 +55,12 @@
     border: 1px solid var(--ifk-form-border-color);
     background-color: var(--ifk-layout-color1);
     break-inside: avoid; /* helps prevent form from splitting between columns */
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 
 .ifk-form .widget-hbox,
 .ifk-form .widget-vbox {
-    overflow: visible;
+    overflow: hidden;
 }
 
 .ifk-form-title {
