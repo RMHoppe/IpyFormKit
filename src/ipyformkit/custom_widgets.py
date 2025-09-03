@@ -1,7 +1,17 @@
 import ipywidgets as widgets
-from traitlets import Any, observe
+from traitlets import observe
 import numpy as np
 import os
+
+class StyleSheet(widgets.HTML):
+    def __init__(self, file):
+        super().__init__()
+        if os.path.exists(file):
+            with open(file, 'r') as f:
+                css = f.read()
+                self.value = f'<style>{css}</style>'
+        else:
+            print(f"Warning: {file} not found.")
 
 class FileAutocomplete(widgets.VBox):
     def __init__(self, root_path='./', placeholder='Start typing a file name...', max_results=99, **kwargs):

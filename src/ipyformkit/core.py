@@ -1,6 +1,7 @@
 import ipywidgets as widgets
 from IPython.display import display, HTML, Javascript
 import os
+import pathlib
 from .custom_widgets import *
 from .auxfuncs import *
 
@@ -20,8 +21,9 @@ def create_widget(key, value):
     box.add_class('ifk-widget-box')
     box.add_class('widget-vbox')
     
-    if value is None:
+    if callable(value):
         wid = widgets.Button(description=key)
+        wid.on_click(value)
         box.children = box.children[1:]
     elif isinstance(value, range):
         wid = widgets.IntSlider(value=value.start, min=value.start, max=value.stop, step=value.step)
@@ -32,21 +34,20 @@ def create_widget(key, value):
     elif isinstance(value, float):
         step = 10**(-count_decimal_places(value))
         wid = widgets.FloatText(value=value, step=step)
+    elif isinstance(value, pathlib.Path):
+        wid = FileAutocomplete(placeholder=str(value))
+        box.add_class('ifk-widget-FileAutocomplete')
     elif isinstance(value, str):
-        if os.sep in value:
-            wid = FileAutocomplete(placeholder=value)
-            box.add_class('ifk-widget-FileAutocomplete')
-        elif 'password' in key.lower():
+        if 'password' in key.lower():
             wid = widgets.Password(placeholder=value)
         elif value.endswith('...'):
             wid = widgets.Textarea(placeholder=value[:-3])
         else:
             wid = widgets.Text(placeholder=value)
     elif isinstance(value, tuple):
-        if value:
-            wid = widgets.Dropdown(options=value, value=value[0])
-        else:
-            wid = widgets.Label(value="(Empty list - no options)")
+        wid = widgets.Dropdown(options=value, value=value[0] if value else None)
+    elif isinstance(value, list):
+        wid = widgets.Select(options=value, value=value[0] if value else None, rows=min(10, len(value)))
     else:
         wid = widgets.Label(value=f"Unsupported type: {type(value).__name__}")
     
@@ -62,7 +63,7 @@ def create_widget(key, value):
     return box
 
 #=====================================================================
-def dict_to_form(input_dict, title=None, collapsed=None, nested=False):
+def dict_to_form(vbox, input_dict, title=None, collapsed=None, nested=False):
     """
     Convert a dictionary to a form with widgets.
 
@@ -107,7 +108,7 @@ def dict_to_form(input_dict, title=None, collapsed=None, nested=False):
 
         elif isinstance(value, dict):
             # Case: nested dictionary group
-            sub_vbox, sub_widgets_dict = dict_to_form(value, title=key, collapsed=True, nested=True)
+            sub_vbox, sub_widgets_dict = dict_to_form(vbox, value, title=key, collapsed=True, nested=True)
             widgets_dict.update(sub_widgets_dict)
             hbox_items.append(sub_vbox)
             
@@ -126,14 +127,12 @@ def dict_to_form(input_dict, title=None, collapsed=None, nested=False):
         vbox.label.add_class('ifk-widget-label')
         vbox.layout.width = '100%'
     else:
-        vbox = widgets.VBox(widgets_list)
-
-    if not nested: vbox.add_class('ifk-form')
+        vbox.children = widgets_list
 
     return vbox, widgets_dict
 
 #=====================================================================
-class Form(object):
+class Form(widgets.VBox):
     def __init__(self, input_dict, title=None, collapsed=None, max_width=600,
                  mandatory=None, disable=None, hide=None, check=None, tooltips=None):
         """
@@ -166,18 +165,18 @@ class Form(object):
 
         Attributes
         ----------
-        vbox : ipywidgets.VBox
-            The main container widget for the form.
         widgets_dict : dict
             A dictionary mapping field names to their corresponding widgets.
         """
+        super().__init__()
         
         self.title = title
         self._input_dict = input_dict
         self._mandatory = mandatory
 
-        self.vbox, self.widgets_dict = dict_to_form(input_dict, title=title, collapsed=collapsed)
-        self.vbox.layout.max_width = f'{max_width}px'
+        self.vbox, self.widgets_dict = dict_to_form(self, input_dict, title=title, collapsed=collapsed)
+        self.layout.max_width = f'{max_width}px'
+        self.add_class('ifk-form')
 
         if isinstance(mandatory, list):
             for key in mandatory:
@@ -194,6 +193,7 @@ class Form(object):
         self.update_hide()
 
         self.set_tooltips(tooltips)
+        self.load_stylesheets()
 
     #=====================================================================
     def add_observer(self, conditions, func):
@@ -315,18 +315,9 @@ class Form(object):
             'assets/ipyformkit.css'
         ]
 
-        sheets = []
-
         for stylesheet in stylesheets:
-            stylesheet = module_dir + os.sep + stylesheet
-            if os.path.exists(stylesheet):
-                with open(stylesheet, 'r') as f:
-                    css = f.read()
-                    sheets.append(HTML(f'<style>{css}</style>'))
-            else:
-                print(f"Warning: {stylesheet} not found. Custom styles will not be applied.")
-        return sheets
-
+            stylesheet = StyleSheet(module_dir + os.sep + stylesheet)
+            self.children = self.children + (stylesheet,)
 
     #=====================================================================
     def load_tooltip_script(self):
@@ -334,19 +325,10 @@ class Form(object):
         if os.path.exists(script):
             with open(script, 'r') as f:
                 js = f.read()
-                return Javascript(js)
+                return display(Javascript(js))
         else:
             print(f"Warning: {script} not found. Tooltips will not be functional.")
-            return Javascript('console.warn("Tooltip script not found. Tooltips will not be functional.")')
-
-
-    #=====================================================================
-    def display(self):
-        """
-        Display the form in the notebook.
-        """
-        items = [self.vbox, *self.load_stylesheets(), self.load_tooltip_script()]
-        display(*items)
+            return display(Javascript('console.warn("Tooltip script not found. Tooltips will not be functional.")'))
 
 
     #=====================================================================
@@ -432,10 +414,31 @@ class Form(object):
             return None
         else:
             return out
+        
+
+    #=====================================================================
+    def __getitem__(self, key):
+        """
+        Get the widget corresponding to the given key.
+        :param key: The key of the widget to retrieve.
+        :return: The widget object.
+        """
+        return self.widgets_dict[key].wid.value
+    
+    #=====================================================================
+    def __setitem__(self, key, value):
+        """
+        Set the value of the widget corresponding to the given key.
+        :param key: The key of the widget to set.
+        :param value: The value to set the widget to.
+        """
+        if key in self.widgets_dict:
+            wid = self.widgets_dict[key].wid
+            wid.value = value
     
 
 #=====================================================================
-class Masonry(object):
+class Masonry(widgets.Box):
     def __init__(self, forms):
         """
         Create a masonry layout with the provided forms.
@@ -452,15 +455,7 @@ class Masonry(object):
         box : ipywidgets.Box
             The main container widget for the masonry layout.
         """
+        super().__init__()
         self.forms = forms
-        self.box = widgets.Box([form.vbox for form in forms])
-        self.box.add_class('ifk-masonry')
-        
-    #=====================================================================
-    def display(self):
-        """
-        Display the masonry layout in the notebook.
-        """
-        f0 = self.forms[0]
-        items = [self.box, *f0.load_stylesheets(), f0.load_tooltip_script()]
-        display(*items)
+        self.children = forms
+        self.add_class('ifk-masonry')

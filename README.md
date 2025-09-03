@@ -74,10 +74,11 @@ out = form.check_and_return_values() # return checked values and highlights miss
 | `bool`                      | `ipywidgets.Checkbox`    | A checkbox with the dictionary key as its description.                     |
 | `int`                       | `ipywidgets.IntText`     | A text box for integer input.                                              |
 | `float`                     | `ipywidgets.FloatText`   | A text box for float input with step size based on decimal places.         |
-| `str` (contains `os.sep`)   | `FileAutocomplete`       | A custom widget for selecting files from the working directory.            |
+| `pathlib.Path`              | `FileAutocomplete`       | A custom widget for selecting files from the working directory.            |
 | `str` (contains "password") | `ipywidgets.Password`    | A password input field.                                                    |
 | `str` (ends with `...`)     | `ipywidgets.Textarea`    | A multi-line text area with the placeholder text (excluding `...`).        |
 | `str` (other cases)         | `ipywidgets.Text`        | A single-line text input field with the string as a placeholder.           |
+| `list`                      | `ipywidgets.Select`      | A selection box with the list values as options.                           |
 | `tuple`                     | `ipywidgets.Dropdown`    | A dropdown menu with the tuple values as options.                          |
+| `callable`                  | `ipywidgets.Button`      | A button that calls the function when clicked.                             |
 | `dictionary`                | `...`                    | A collapsible sub-form with the dictionary mapped according to this table. |
-| Other types                 | `ipywidgets.Label`       | A label displaying "Unsupported type: <type_name>".                        |

@@ -35,7 +35,7 @@
                                 #444746)));
   }
                
-.cell-output-ipywidget-background {
+.cell-output-ipywidget-background:has(.ifk-form) {
   background-color: var(--ifk-layout-color0) !important;
   padding: var(--notebook-output-node-padding) 0 0 0 !important;
   margin: 0;
@@ -60,7 +60,7 @@
 
 .ifk-form .widget-hbox,
 .ifk-form .widget-vbox {
-    overflow: hidden;
+    overflow: visible;
 }
 
 .ifk-form-title {
@@ -100,6 +100,10 @@
     align-items: center;
 }
 
+.ifk-widget-box .slider-container {
+    min-width: 100px;
+}
+
 .ifk-widget-box .widget-label,
 .ifk-widget-box .widget-label-basic {
     margin: 0;
@@ -114,6 +118,14 @@
     color: var(--ifk-widget-input-color) !important;
     background-color: var(--ifk-layout-color0) !important;
     border: none !important;
+}
+
+.ifk-widget-box .widget-readout {
+    color: var(--ifk-widget-input-color);
+}
+
+.ifk-widget-box .widget-select {
+    min-width: 8ch;
 }
 
 .ifk-widget-box input[type=number] {
