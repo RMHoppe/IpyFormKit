@@ -86,6 +86,10 @@
     color: var(--ifk-widget-label-color);
 }
 
+.ifk-widget-box .widget-dropdown {
+    overflow: hidden;
+}
+
 .ifk-widget-box:has(input[type=text]),
 .ifk-widget-box:has(textarea) {
     flex: 1 1;

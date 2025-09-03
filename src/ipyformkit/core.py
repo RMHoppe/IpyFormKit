@@ -359,8 +359,7 @@ class Form(widgets.VBox):
                         wid.wid.value = value
                     else:
                         print(f"Warning: Type mismatch for {key}. Expected {type(wid.wid.value)}, got {type(value)}.")
-                elif value:
-                    print(f"Warning: {key} is not a valid widget.")
+
             elif verbose:
                 print(f"Warning: {key} is not a valid key in the form.")
 
