@@ -177,11 +177,9 @@
 }
 
 .ifk-tooltip-text {
-    visibility: hidden;
+    display: none;
     position: absolute;
     z-index: 1000;
-    /* width: 200px; */
-    /* left: 0; */
     padding: var(--jp-widgets-margin);
     border: 1px solid var(--ifk-layout-color3);
     background-color: var(--ifk-layout-color1);
