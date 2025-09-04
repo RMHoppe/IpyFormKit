@@ -36,7 +36,10 @@ function measureTextWidth(text, referenceElement) {
 }
 
 waitForPopper(() => {
-  document.querySelectorAll('.ifk-tooltip').forEach((tooltip) => {
+  function initTooltip(tooltip) {
+    if (tooltip.dataset.tooltipInitialized) return; // prevent double init
+    tooltip.dataset.tooltipInitialized = "true";
+
     const tipText = tooltip.querySelector('.ifk-tooltip-text');
     if (!tipText) return;
 
@@ -54,7 +57,6 @@ waitForPopper(() => {
       const containerWidth = container.clientWidth - 14;
       const idealWidth = measureTextWidth(tipText.textContent, tipText);
       const finalWidth = Math.min(idealWidth, containerWidth);
-      console.log(finalWidth)
 
       tipText.style.width = finalWidth + 'px';
 
@@ -99,5 +101,29 @@ waitForPopper(() => {
 
     tooltip.addEventListener('mouseenter', show);
     tooltip.addEventListener('mouseleave', hide);
+  }
+
+  // Initialize all existing tooltips
+  document.querySelectorAll('.ifk-tooltip').forEach(initTooltip);
+
+  // Watch for new tooltips being added
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (!(node instanceof HTMLElement)) return;
+
+        if (node.matches('.ifk-tooltip')) {
+          initTooltip(node);
+        }
+
+        // Also check inside added nodes
+        node.querySelectorAll?.('.ifk-tooltip').forEach(initTooltip);
+      });
+    });
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
   });
 });

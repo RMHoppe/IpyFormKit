@@ -194,6 +194,7 @@ class Form(widgets.VBox):
 
         self.set_tooltips(tooltips)
         self.load_stylesheets()
+        self.load_tooltip_script()
 
     #=====================================================================
     def add_observer(self, conditions, func):
@@ -325,10 +326,10 @@ class Form(widgets.VBox):
         if os.path.exists(script):
             with open(script, 'r') as f:
                 js = f.read()
-                return display(Javascript(js))
+                display(Javascript(js))
         else:
             print(f"Warning: {script} not found. Tooltips will not be functional.")
-            return display(Javascript('console.warn("Tooltip script not found. Tooltips will not be functional.")'))
+            display(Javascript('console.warn("Tooltip script not found. Tooltips will not be functional.")'))
 
 
     #=====================================================================
