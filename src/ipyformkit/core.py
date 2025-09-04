@@ -322,14 +322,17 @@ class Form(widgets.VBox):
 
     #=====================================================================
     def load_tooltip_script(self):
-        script = module_dir + os.sep + 'assets/tooltip_script.js'
-        if os.path.exists(script):
-            with open(script, 'r') as f:
-                js = f.read()
-                display(Javascript(js))
-        else:
-            print(f"Warning: {script} not found. Tooltips will not be functional.")
-            display(Javascript('console.warn("Tooltip script not found. Tooltips will not be functional.")'))
+        hidden_output = widgets.Output(layout={'display': 'none'})
+
+        with hidden_output:
+            script = module_dir + os.sep + 'assets/tooltip_script.js'
+            if os.path.exists(script):
+                with open(script, 'r') as f:
+                    js = f.read()
+                    display(Javascript(js))
+            else:
+                print(f"Warning: {script} not found. Tooltips will not be functional.")
+                display(Javascript('console.warn("Tooltip script not found. Tooltips will not be functional.")'))
 
 
     #=====================================================================
