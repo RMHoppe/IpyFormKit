@@ -8,7 +8,7 @@ from .auxfuncs import *
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 #=====================================================================
-def create_widget(key, value):
+def create_widget(key, value, fmt):
     """
     Create a widget based on the type of value.
     :param key: The key for the widget.
@@ -32,8 +32,7 @@ def create_widget(key, value):
     elif isinstance(value, int):
         wid = widgets.IntText(value=value)
     elif isinstance(value, float):
-        step = 10**(-count_decimal_places(value))
-        wid = widgets.FloatText(value=value, step=step)
+        wid = widgets.FloatText(value=value)
     elif isinstance(value, pathlib.Path):
         wid = FileAutocomplete(placeholder=str(value))
         box.add_class('ifk-widget-FileAutocomplete')
@@ -50,6 +49,15 @@ def create_widget(key, value):
         wid = widgets.Select(options=value, value=value[0] if value else None, rows=min(10, len(value)))
     else:
         wid = widgets.Label(value=f"Unsupported type: {type(value).__name__}")
+
+    if fmt and hasattr(wid, 'value'):
+        formatted = fmt(value)
+        if can_convert(formatted, type(wid.value)):
+            wid.value = formatted
+    
+    if isinstance(wid, widgets.FloatText):
+        step = 10**(-count_decimal_places(wid.value))
+        wid.step = step
     
     box.children = list(box.children) + [wid,]
     
@@ -63,7 +71,7 @@ def create_widget(key, value):
     return box
 
 #=====================================================================
-def dict_to_form(vbox, input_dict, title=None, collapsed=None, nested=False):
+def dict_to_form(vbox, input_dict, fmt, title=None, collapsed=None, nested=False):
     """
     Convert a dictionary to a form with widgets.
 
@@ -90,6 +98,7 @@ def dict_to_form(vbox, input_dict, title=None, collapsed=None, nested=False):
     """
     widgets_list = []
     widgets_dict = {}
+    inputs_dict = {}
 
     if collapsed is None and title is not None:
         title_widget = widgets.Label(value=title)
@@ -98,24 +107,28 @@ def dict_to_form(vbox, input_dict, title=None, collapsed=None, nested=False):
 
     for key, value in input_dict.items():
         hbox_items = []
-        
-        # Case: nested tuple group
-        if isinstance(key, tuple) and isinstance(value, tuple):
-            for sub_key, sub_val in zip(key, value):
-                wid = create_widget(sub_key, sub_val)
-                widgets_dict[sub_key] = wid
-                hbox_items.append(wid)
 
-        elif isinstance(value, dict):
+        def new_widget(k, v):
+            f = fmt[k] if k in fmt else None
+            wid = create_widget(k, v, fmt=f)
+            widgets_dict[k] = wid
+            inputs_dict[k] = wid.wid
+            hbox_items.append(wid)
+
+        if isinstance(value, dict):
             # Case: nested dictionary group
-            sub_vbox, sub_widgets_dict = dict_to_form(vbox, value, title=key, collapsed=True, nested=True)
+            sub_vbox, sub_widgets_dict, sub_inputs_dict = dict_to_form(vbox, value, fmt, title=key, collapsed=True, nested=True)
             widgets_dict.update(sub_widgets_dict)
+            inputs_dict.update(sub_inputs_dict)
             hbox_items.append(sub_vbox)
+
+        # Case: nested tuple group
+        elif isinstance(key, tuple) and isinstance(value, tuple):
+            for sub_key, sub_val in zip(key, value):
+                new_widget(sub_key, sub_val)
             
         else:
-            wid = create_widget(key, value)
-            widgets_dict[key] = wid
-            hbox_items.append(wid)
+            new_widget(key, value)
             
         hbox = widgets.HBox(hbox_items)
         hbox.add_class('ifk-form-hbox')
@@ -129,12 +142,13 @@ def dict_to_form(vbox, input_dict, title=None, collapsed=None, nested=False):
     else:
         vbox.children = widgets_list
 
-    return vbox, widgets_dict
+    return vbox, widgets_dict, inputs_dict
 
 #=====================================================================
 class Form(widgets.VBox):
     def __init__(self, input_dict, title=None, collapsed=None, max_width=600,
-                 mandatory=None, disable=None, hide=None, check=None, tooltips=None):
+                 mandatory=None, disable=None, hide=None, check=None, tooltips=None,
+                 formatters=None):
         """
         A class to create and manage interactive forms using ipywidgets.
 
@@ -162,6 +176,11 @@ class Form(widgets.VBox):
         check : dict, optional
             A dictionary where keys are field names and values are functions that
             return a boolean to validate the field's value. Default is None.
+        tooltips : dict, optional
+            A dictionary where keys are field names and values are tooltips. Default is None.
+        formatters : dict, optional
+            A dictionary where keys are field names and values are formatting functions.
+            Default is None.
 
         Attributes
         ----------
@@ -173,8 +192,9 @@ class Form(widgets.VBox):
         self.title = title
         self._input_dict = input_dict
         self._mandatory = mandatory
+        self._formatters = formatters if formatters else {}
 
-        self.vbox, self.widgets_dict = dict_to_form(self, input_dict, title=title, collapsed=collapsed)
+        self.vbox, self.widgets_dict, self.inputs_dict = dict_to_form(self, input_dict, self._formatters, title=title, collapsed=collapsed)
         self.layout.max_width = f'{max_width}px'
         self.add_class('ifk-form')
 
@@ -209,13 +229,18 @@ class Form(widgets.VBox):
         if isinstance(conditions, dict):
             for key, val in conditions.items():
                 if key in self.widgets_dict:
+                    wid = self.widgets_dict[key]
                     if callable(val):
-                        wid = self.widgets_dict[key]
                         conditions_out[wid] = val
+                    elif isinstance(val, bool):
+                        conditions_out[wid] = lambda d: val
+                    else:
+                        print(f"Warning: Condition for {key} should be a function or boolean. Got {type(val).__name__} instead.")
 
             # The function will be called when any of the widgets change
-            for key, wid in self.widgets_dict.items():
-                wid.wid.observe(func, names='value')
+            for key, wid in self.inputs_dict.items():
+                wid.observe(func, names='value')
+
         elif conditions:
             print(f"Warning: Conditions should be a dictionary. Got {type(conditions).__name__} instead.")
 
@@ -322,9 +347,10 @@ class Form(widgets.VBox):
 
     #=====================================================================
     def load_tooltip_script(self):
-        hidden_output = widgets.Output(layout={'display': 'none'})
+        self.js_output = widgets.Output(layout={'display': 'none'})
+        self.children = self.children + (self.js_output,)
 
-        with hidden_output:
+        with  self.js_output:
             script = module_dir + os.sep + 'assets/tooltip_script.js'
             if os.path.exists(script):
                 with open(script, 'r') as f:
@@ -341,31 +367,20 @@ class Form(widgets.VBox):
         Get the values of the widgets in the form as a dictionary.
         :return: A dictionary of key-value pairs representing the widget values.
         """
-        out = {key: wid.wid.value for key, wid in self.widgets_dict.items() if hasattr(wid.wid, 'value')}
+        out = {key: wid.value for key, wid in self.inputs_dict.items() if hasattr(wid, 'value')}
         return out
     
 
     #=====================================================================
-    def set_values(self, values, verbose=True):
+    def set_values(self, values):
         """
         Set the values of the widgets in the form.
         :param values: A dictionary of key-value pairs to set the widget values.
         :param verbose: If True, print warnings for invalid keys.
         """
         def set_key(key, value):
-            if key in self.widgets_dict:
-                wid = self.widgets_dict[key]
-                if isinstance(value, (tuple, list)):
-                    value = value[0]
-
-                if hasattr(wid.wid, 'value'):
-                    if can_convert(value, type(wid.wid.value)):
-                        wid.wid.value = value
-                    else:
-                        print(f"Warning: Type mismatch for {key}. Expected {type(wid.wid.value)}, got {type(value)}.")
-
-            elif verbose:
-                print(f"Warning: {key} is not a valid key in the form.")
+            if isinstance(value, (tuple, list)): value = value[0]
+            self[key] = value
 
         for key, value in values.items():
             if isinstance(key, (tuple, list)):
@@ -422,11 +437,18 @@ class Form(widgets.VBox):
     #=====================================================================
     def __getitem__(self, key):
         """
-        Get the widget corresponding to the given key.
+        Get the value corresponding to the given key.
         :param key: The key of the widget to retrieve.
-        :return: The widget object.
+        :return: The widget value.
         """
-        return self.widgets_dict[key].wid.value
+        if key in self.inputs_dict:
+            wid = self.inputs_dict[key]
+            if hasattr(wid, 'value'):
+                return self.inputs_dict[key].value
+            else:
+                print(f"Warning: Widget for {key} does not have a 'value' attribute.")
+        else:
+            print(f"Warning: {key} is not a valid key in the form.")
     
     #=====================================================================
     def __setitem__(self, key, value):
@@ -435,9 +457,21 @@ class Form(widgets.VBox):
         :param key: The key of the widget to set.
         :param value: The value to set the widget to.
         """
-        if key in self.widgets_dict:
-            wid = self.widgets_dict[key].wid
-            wid.value = value
+        if key in self.inputs_dict:
+            wid = self.inputs_dict[key]
+
+            if hasattr(wid, 'value'):
+                if key in self._formatters:
+                    value = self._formatters[key](value)
+
+                if can_convert(value, type(wid.value)):
+                    wid.value = value
+                else:
+                    print(f"Warning: Type mismatch for {key}. Expected {type(wid.value)}, got {type(value)}.")
+            else:
+                print(f"Warning: Widget for {key} does not have a 'value' attribute.")
+        else:
+            print(f"Warning: {key} is not a valid key in the form.")
     
 
 #=====================================================================
