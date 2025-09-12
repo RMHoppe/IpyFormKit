@@ -2,6 +2,10 @@ import ipywidgets as widgets
 from traitlets import observe
 import numpy as np
 import os
+import pathlib
+
+folder_icon = '\U0001F4C1'  # 📁
+file_icon = '\U0001F4C4'    # 📄
 
 class StyleSheet(widgets.HTML):
     def __init__(self, file):
@@ -17,7 +21,7 @@ class FileAutocomplete(widgets.VBox):
     def __init__(self, root_path='./', placeholder='Start typing a file name...', max_results=99, **kwargs):
         super().__init__()
         
-        self.root_path = root_path
+        self.root_path = pathlib.Path(root_path)
         self.max_results = max_results
 
         # Main input field
@@ -34,6 +38,7 @@ class FileAutocomplete(widgets.VBox):
         self.children = [self.text, self.suggestions_box]
         self.text.observe(self._on_text_change, names='value')
         self.add_class('file-autocomplete')
+        self._on_text_change({'new': ''})  # Initialize suggestions
     
     def _on_text_change(self, change):
         typed = change['new']
@@ -42,16 +47,14 @@ class FileAutocomplete(widgets.VBox):
     
     def _get_matching_files(self, path):
         try:
-            if os.sep in path:
-                folder = path[:path.rindex(os.sep)+1]
-                prefix = path[path.rindex(os.sep)+1:]
+            p = pathlib.Path(path)
+            folder = (self.root_path / p).resolve()
+            folder = folder.parent if folder.is_file() else folder
+            if p.is_dir():
+                matches = folder.iterdir()
             else:
-                folder = ''
-                prefix = path
-
-            abs_folder_path = os.path.join(self.root_path, folder)
-            files = os.listdir(abs_folder_path)
-            matches = [folder + f for f in files if prefix in f]
+                folder = folder.parent
+                matches = [f for f in folder.iterdir() if p.name.lower() in f.name.lower()]
             return sorted(matches)[:self.max_results]
         except Exception:
             return []
@@ -68,33 +71,22 @@ class FileAutocomplete(widgets.VBox):
                     return
                 
             for i, match in enumerate(matches):
-                abs_path = os.path.join(self.root_path, match)
-                is_dir = os.path.isdir(abs_path)
                 if i < len(self.suggestions_box.children) and hasattr(self.suggestions_box.children[0], 'children'):
                     suggestion = self.suggestions_box.children[i]
-                    suggestion = self._reuse_suggestion(suggestion, match, is_dir)
+                    suggestion = self._reuse_suggestion(suggestion, match)
                 else:
-                    suggestion = self._create_suggestion(match, is_dir)
+                    suggestion = self._create_suggestion(match)
 
                 suggestion_widgets.append(suggestion)
 
         self.suggestions_box.children = suggestion_widgets
 
-    def _create_suggestion(self, match, is_dir):
-        icon_html = '\U0001F4C1' if is_dir else '\U0001F4C4'
+    def _create_suggestion(self, match):
+        icon_html = folder_icon if match.is_dir() else file_icon
         icon_widget = widgets.Label(value=icon_html)
         icon_widget.add_class('file-autocomplete-icon')
 
-        if os.sep in match:
-            description = match[match.rindex(os.sep)+1:]
-        else:
-            description = match
-
-        if is_dir:
-            description += os.sep
-            match += os.sep
-
-        text_button = widgets.Button(description=description)
+        text_button = widgets.Button(description=match.name)
         text_button.file = match
         text_button.on_click(self._on_suggestion_clicked)
 
@@ -107,24 +99,15 @@ class FileAutocomplete(widgets.VBox):
         text_button.add_class('autocomplete-suggestions')
         return suggestion
     
-    def _reuse_suggestion(self, suggestion, match, is_dir):
-        if os.sep in match:
-            description = match[match.rindex(os.sep)+1:]
-        else:
-            description = match
-
-        if is_dir:
-            description += os.sep
-            match += os.sep
-
-        suggestion.children[1].description = description
+    def _reuse_suggestion(self, suggestion, match):
+        suggestion.children[1].description = match.name
         suggestion.children[1].file = match
-        suggestion.children[0].value = '\U0001F4C1' if is_dir else '\U0001F4C4'
+        suggestion.children[0].value = folder_icon if match.is_dir() else file_icon
         return suggestion
 
     def _on_suggestion_clicked(self, button):
         matches = self._get_matching_files(button.file)
-        self.text.value = button.file
+        self.text.value = str(button.file)
         self._update_suggestions(matches, clicked=True)
 
     def observe(self, *args, **kwargs):

@@ -8,7 +8,7 @@ from .auxfuncs import *
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 #=====================================================================
-def create_widget(key, value, fmt):
+def create_widget(key, value, fmt=None):
     """
     Create a widget based on the type of value.
     :param key: The key for the widget.
@@ -34,7 +34,7 @@ def create_widget(key, value, fmt):
     elif isinstance(value, float):
         wid = widgets.FloatText(value=value)
     elif isinstance(value, pathlib.Path):
-        wid = FileAutocomplete(placeholder=str(value))
+        wid = FileAutocomplete(root_path=value)
         box.add_class('ifk-widget-FileAutocomplete')
     elif isinstance(value, str):
         if 'password' in key.lower():
